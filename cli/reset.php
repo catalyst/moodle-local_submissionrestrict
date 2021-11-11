@@ -61,7 +61,7 @@ Options:
   -s, --search       A string to search courses by. It will be used in "like '%{search}%'" SQL statement.
   -h, --hour         A hour to reset submission time to (e.g. 23).
   -m, --minute       A minutes to reset submission time to (e.g. 55).
- 
+
 Example:
 \$sudo -u www-data /usr/bin/php local/integrity/cli/reset.php --help
 
