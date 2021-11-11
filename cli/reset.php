@@ -101,7 +101,6 @@ if (empty($records)) {
     exit(0);
 }
 
-$calendartype = \core_calendar\type_factory::get_calendar_instance();
 $updated = 0;
 
 foreach ($records as $record) {
