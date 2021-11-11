@@ -1,0 +1,68 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Tests for local_submissionrestict lib functions.
+ *
+ * @package    local_submissionrestict
+ * @copyright  2021 Catalyst IT
+ * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace local_submissionrestict\tests;
+
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+
+require_once($CFG->dirroot . '/local/submissionrestict/lib.php');
+
+/**
+ * Tests for local_submissionrestict lib functions.
+ *
+ * @package    local_submissionrestict
+ * @copyright  2021 Catalyst IT
+ * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class lib_test extends \advanced_testcase {
+
+    /**
+     * Test calculating a new time.
+     */
+    public function test_local_submissionrestict_calculate_new_time() {
+        $now = time();
+
+        // Generate expected timestamp for the time we are going to calculate for.
+        $time = new \DateTime($now, \core_date::get_user_timezone_object());
+        $time->setTime(23, 55);
+        $expected = $time->getTimestamp();
+
+        // Should return null if new date is the same as old date.
+        $time = new \DateTime($now, \core_date::get_user_timezone_object());
+        $time->setTime(23, 55);
+        $date = $time->getTimestamp();
+        $this->assertNull(local_submissionrestict_calculate_new_time($date, 23, 55));
+
+        // Should reset to the same day, but different time.
+        $time = new \DateTime($now, \core_date::get_user_timezone_object());
+        $time->setTime(13, 55);
+        $date = $time->getTimestamp();
+        $this->assertSame($expected, local_submissionrestict_calculate_new_time($date, 23, 55));
+    }
+
+}
