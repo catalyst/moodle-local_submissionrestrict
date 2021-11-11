@@ -27,6 +27,14 @@ namespace local_submissionrestict\privacy;
 
 use \core_privacy\local\metadata\null_provider;
 
+/**
+ * Privacy Subsystem implementation for local_submissionrestict.
+ *
+ * @package     local_submissionrestict
+ * @copyright   2021 Catalyst IT
+ * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class provider implements null_provider {
 
     /**
