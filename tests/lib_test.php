@@ -45,7 +45,7 @@ class lib_test extends \advanced_testcase {
      * Test calculating a new time.
      */
     public function test_local_submissionrestict_calculate_new_time() {
-        $now = time();
+        $now = '12.11.2021 13:00';
 
         // Generate expected timestamp for the time we are going to calculate for.
         $time = new \DateTime($now, \core_date::get_user_timezone_object());
