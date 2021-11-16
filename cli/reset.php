@@ -36,12 +36,15 @@ require_once($CFG->dirroot . '/local/submissionrestict/lib.php');
         'search' => false,
         'hour' => false,
         'minute' => false,
+        'ignore' => false,
+
     ],
     [
         'r' => 'run',
         's' => 'search',
         'h' => 'hour',
         'm' => 'minute',
+        'i' => 'ignore',
     ]
 );
 
@@ -61,6 +64,7 @@ Options:
   -s, --search       A string to search courses by. It will be used in "like '%{search}%'" SQL statement.
   -h, --hour         A hour to reset submission time to (e.g. 23).
   -m, --minute       A minutes to reset submission time to (e.g. 55).
+  -i, --ignore       A list of times to ignore (e.g 9:30,16:30,23:55). Those submission time will be ignored.
 
 Example:
 \$sudo -u www-data /usr/bin/php local/integrity/cli/reset.php --help
@@ -86,6 +90,17 @@ if (empty((int)$options['minute'])) {
     exit(0);
 }
 
+$ignore = [];
+if (!empty($options['ignore'])) {
+    $timestrings = explode(",", str_replace(" ", "", $options['ignore']));
+    foreach ($timestrings as $timestring) {
+        $parts = explode(':', $timestring);
+        if (count($parts) === 2) {
+            $ignore[] = new \local_submissionrestict\time($parts[0], $parts[1]);
+        }
+    }
+}
+
 // Getting all assignments where either due date or cut off date is set and the course name is what we're looking for.
 $sql = "SELECT a.id, a.name, c.fullname, a.duedate, a.cutoffdate
           FROM {assign} a
@@ -109,15 +124,15 @@ foreach ($records as $record) {
     $update->id = $record->id;
 
     if ($record->duedate > 0) {
-        if ($newdate = local_submissionrestict_calculate_new_time($record->duedate, $options['hour'], $options['minute'])) {
-            $update->duedate = $newdate;
+        if ($date = local_submissionrestict_calculate_new_time($record->duedate, $options['hour'], $options['minute'], $ignore)) {
+            $update->duedate = $date;
             $needupdate = true;
         }
     }
 
     if ($record->cutoffdate > 0) {
-        if ($newdate = local_submissionrestict_calculate_new_time($record->cutoffdate, $options['hour'], $options['minute'])) {
-            $update->cutoffdate = $newdate;
+        if ($date = local_submissionrestict_calculate_new_time($record->cutoffdate, $options['hour'], $options['minute'], $ignore)) {
+            $update->cutoffdate = $date;
             $needupdate = true;
         }
     }

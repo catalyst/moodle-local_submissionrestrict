@@ -25,6 +25,8 @@
 
 namespace local_submissionrestict\tests;
 
+use local_submissionrestict\time;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -63,6 +65,12 @@ class lib_test extends \advanced_testcase {
         $time->setTime(13, 55);
         $date = $time->getTimestamp();
         $this->assertSame($expected, local_submissionrestict_calculate_new_time($date, 23, 55));
+
+        // Should return null if new date is the same as old date.
+        $time = new \DateTime($now, \core_date::get_user_timezone_object());
+        $time->setTime(18, 30);
+        $date = $time->getTimestamp();
+        $this->assertNull(local_submissionrestict_calculate_new_time($date, 23, 55, [new time(18, 30)]));
     }
 
 }

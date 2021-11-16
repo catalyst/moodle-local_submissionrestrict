@@ -29,40 +29,50 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Calculates a new time based on provided hour and minute.
- *
  * It will return null if provided date doesn't need to be modified.
  *
  * @param int $date A unix time stamp date to calculate a new time for.
- * @param int $hour A new hour to set.
- * @param int $minute a new minute to set.
+ * @param int $newhour A new hour to set.
+ * @param int $newminute a new minute to set.
+ * @param \local_submissionrestict\time[] $ignoretimes A list of times to ignore.
  *
  * @return int|null New unix time stamp.
  */
-function local_submissionrestict_calculate_new_time(int $date, int $hour, int $minute): ?int {
+function local_submissionrestict_calculate_new_time(int $date, int $newhour, int $newminute, array $ignoretimes = []): ?int {
     $newdate = null;
+    $ignore = false;
 
     $calendartype = type_factory::get_calendar_instance();
 
     $currentdate = $calendartype->timestamp_to_date_array($date);
     $currentdate['minutes'] -= $currentdate['minutes'] % 5;
 
-    if ($currentdate['hours'] <> $hour || $currentdate['minutes'] <> $minute) {
-        $currentdate['hour'] = $hour;
-        $currentdate['minute'] = $minute;
+    if ($currentdate['hours'] <> $newhour || $currentdate['minutes'] <> $newminute) {
+        // Check if the current time is in the list of times to ignore.
+        foreach ($ignoretimes as $ignoretime) {
+            if ($currentdate['hours'] == $ignoretime->get_hour() && $currentdate['minutes'] == $ignoretime->get_minute()) {
+                $ignore = true;
+            }
+        }
 
-        $gregoriandate = $calendartype->convert_to_gregorian(
-            $currentdate['year'],
-            $currentdate['mon'],
-            $currentdate['mday'],
-            $currentdate['hour'],
-            $currentdate['minute']);
+        if (!$ignore) {
+            $currentdate['hour'] = $newhour;
+            $currentdate['minute'] = $newminute;
 
-        $newdate = make_timestamp($gregoriandate['year'],
-            $gregoriandate['month'],
-            $gregoriandate['day'],
-            $gregoriandate['hour'],
-            $gregoriandate['minute']
-        );
+            $gregoriandate = $calendartype->convert_to_gregorian(
+                $currentdate['year'],
+                $currentdate['mon'],
+                $currentdate['mday'],
+                $currentdate['hour'],
+                $currentdate['minute']);
+
+            $newdate = make_timestamp($gregoriandate['year'],
+                $gregoriandate['month'],
+                $gregoriandate['day'],
+                $gregoriandate['hour'],
+                $gregoriandate['minute']
+            );
+        }
     }
 
     return $newdate;
