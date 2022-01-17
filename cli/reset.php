@@ -34,6 +34,7 @@ require_once($CFG->dirroot . '/local/submissionrestict/lib.php');
         'help' => false,
         'run' => false,
         'search' => false,
+        'fullname' => false,
         'hour' => false,
         'minute' => false,
         'ignore' => false,
@@ -42,6 +43,7 @@ require_once($CFG->dirroot . '/local/submissionrestict/lib.php');
     [
         'r' => 'run',
         's' => 'search',
+        'f' => 'fullname',
         'h' => 'hour',
         'm' => 'minute',
         'i' => 'ignore',
@@ -62,6 +64,7 @@ Options:
  --help              Print out this help
   -r, --run          Executes reset, otherwise will be run in a dry run mode.
   -s, --search       A string to search courses by. It will be used in "like '%{search}%'" SQL statement.
+  -f, --fullname     A full name to search courses by. It will exact match full name in SQL.
   -h, --hour         A hour to reset submission time to (e.g. 23).
   -m, --minute       A minutes to reset submission time to (e.g. 55).
   -i, --ignore       A list of times to ignore (e.g 9:30,16:30,23:55). Those submission time will be ignored.
@@ -75,8 +78,13 @@ EOT;
 }
 
 
-if (empty($options['search'])) {
-    cli_writeln("You have to specify correct 'search' option. Please use --help to see all required options.");
+if (empty($options['search']) && empty($options['fullname'])) {
+    cli_writeln("You have to specify 'search' or 'fullname' option. Please use --help to see all required options.");
+    exit(0);
+}
+
+if (!empty($options['search']) && !empty($options['fullname'])) {
+    cli_writeln("You have to specify 'search' or 'fullname' option. Please use --help to see all required options.");
     exit(0);
 }
 
@@ -101,13 +109,24 @@ if (!empty($options['ignore'])) {
     }
 }
 
+$params = [];
+$search = '';
+
+if (!empty($options['search'])) {
+    $search = $DB->sql_like('fullname', ':fullname', false);
+    $params['fullname'] = '%' . $DB->sql_like_escape($options['search']) . '%';
+}
+
+if (!empty($options['fullname'])) {
+    $search = 'fullname = :fullname';
+    $params['fullname'] = $options['fullname'];
+}
+
 // Getting all assignments where either due date or cut off date is set and the course name is what we're looking for.
 $sql = "SELECT a.id, a.name, c.fullname, a.duedate, a.cutoffdate
           FROM {assign} a
           JOIN {course} c ON a.course = c.id
-         WHERE " . $DB->sql_like('fullname', ':fullname', false) . " AND (a.duedate > 0 OR a.cutoffdate > 0)";
-
-$params['fullname'] = '%' . $DB->sql_like_escape($options['search']) . '%';
+         WHERE (a.duedate > 0 OR a.cutoffdate > 0) AND " . $search;
 
 $records = $DB->get_records_sql($sql, $params);
 
