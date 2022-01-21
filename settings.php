@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - https://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,21 +12,33 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Settings for local_submissionrestict plugin.
  *
  * @package     local_submissionrestict
- * @copyright   2021 Catalyst IT
+ * @copyright   2022 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_submissionrestict';
-$plugin->release = 202111001;
-$plugin->version = 202111001;
-$plugin->requires = 2020061500;
-$plugin->maturity = MATURITY_STABLE;
+if ($hassiteconfig && $ADMIN->locate('localplugins')) {
+
+    $settings = new admin_settingpage(
+        'local_submissionrestict_settings',
+        get_string('pluginname', 'local_submissionrestict')
+    );
+
+    $settings->add(new admin_setting_configtime(
+        'local_submissionrestict/restore_hour',
+        'restore_minute',
+        get_string('settings:restore', 'local_submissionrestict'),
+        get_string('settings:restore_desc', 'local_submissionrestict'),
+        ['h' => 23, 'm' => 55])
+    );
+
+    $ADMIN->add('localplugins', $settings);
+}
