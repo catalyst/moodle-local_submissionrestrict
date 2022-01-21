@@ -141,16 +141,17 @@ foreach ($records as $record) {
     $needupdate = false;
     $update = new stdClass();
     $update->id = $record->id;
+    $newtime = new \local_submissionrestict\time($options['hour'], $options['minute']);
 
     if ($record->duedate > 0) {
-        if ($date = local_submissionrestict_calculate_new_time($record->duedate, $options['hour'], $options['minute'], $ignore)) {
+        if ($date = local_submissionrestict_calculate_new_time($record->duedate, $newtime, $ignore)) {
             $update->duedate = $date;
             $needupdate = true;
         }
     }
 
     if ($record->cutoffdate > 0) {
-        if ($date = local_submissionrestict_calculate_new_time($record->cutoffdate, $options['hour'], $options['minute'], $ignore)) {
+        if ($date = local_submissionrestict_calculate_new_time($record->cutoffdate, $newtime, $ignore)) {
             $update->cutoffdate = $date;
             $needupdate = true;
         }
