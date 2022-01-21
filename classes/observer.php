@@ -18,6 +18,8 @@ namespace local_submissionrestict;
 
 use core\event\grade_item_created;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot . '/local/submissionrestict/lib.php');
 
 /**
@@ -38,7 +40,7 @@ class observer {
     public static function handle_grade_item_created(grade_item_created $event) {
         global $PAGE, $DB;
 
-        if ($PAGE->requestorigin == 'restore' && self::is_assignment_related($event)) {
+        if ($PAGE->requestorigin == 'restore' && self::is_activity_related($event, 'assign')) {
             $gradeitem = \grade_item::fetch([
                 'courseid' => $event->courseid,
                 'id' => $event->objectid,
@@ -48,14 +50,14 @@ class observer {
                 $needupdate = false;
 
                 if ($record->duedate > 0) {
-                    if ($newdate = local_submissionrestict_calculate_new_time($record->duedate, self::get_assign_new_time())) {
+                    if ($newdate = local_submissionrestict_calculate_new_time($record->duedate, self::get_restore_time())) {
                         $record->duedate = $newdate;
                         $needupdate = true;
                     }
                 }
 
                 if ($record->cutoffdate > 0) {
-                    if ($newdate = local_submissionrestict_calculate_new_time($record->cutoffdate, self::get_assign_new_time())) {
+                    if ($newdate = local_submissionrestict_calculate_new_time($record->cutoffdate, self::get_restore_time())) {
                         $record->cutoffdate = $newdate;
                         $needupdate = true;
                     }
@@ -71,18 +73,20 @@ class observer {
     /**
      * Check if provided event is assignment related event.
      *
-     * @param \core\event\grade_item_created $event
+     * @param \core\event\grade_item_created $event Event.
+     * @param string $activitytype Activity type. E.g. assign, forum and etc.
+     *
      * @return bool
      */
-    protected static function is_assignment_related(grade_item_created $event): bool {
-        return $event->other['itemtype'] == 'mod' && $event->other['itemmodule'] == 'assign';
+    protected static function is_activity_related(grade_item_created $event, string $activitytype): bool {
+        return $event->other['itemtype'] == 'mod' && $event->other['itemmodule'] == $activitytype;
     }
 
     /**
      * Get a new time to force restored assignemnts to.
      * @return \local_submissionrestict\time
      */
-    protected static function get_assign_new_time(): time {
+    protected static function get_restore_time(): time {
         return new time(
             (int)get_config('local_submissionrestict', 'restore_hour'),
             (int)get_config('local_submissionrestict', 'restore_minute')

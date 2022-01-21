@@ -26,8 +26,6 @@
 use \core_calendar\type_factory;
 use \local_submissionrestict\time;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Calculates a new time based on provided hour and minute.
  * It will return null if provided date doesn't need to be modified.

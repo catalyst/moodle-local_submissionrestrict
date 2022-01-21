@@ -65,7 +65,6 @@ class observer_test extends \advanced_testcase {
         $this->assertEquals(0, $assign2record->duedate);
         $this->assertEquals(0, $assign2record->cutoffdate);
 
-
         // Backup and restore activities.
         $newcm1 = duplicate_module($course, get_fast_modinfo($course)->get_cm($assign1->cmid));
         $newcm2 = duplicate_module($course, get_fast_modinfo($course)->get_cm($assign2->cmid));
