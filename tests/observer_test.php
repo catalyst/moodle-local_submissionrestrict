@@ -78,7 +78,6 @@ class observer_test extends \advanced_testcase {
         $this->assertEquals($initialtime->getTimestamp(), $newassign1record->cutoffdate);
         $this->assertEquals(0, $newassign2record->duedate);
         $this->assertEquals(0, $newassign2record->cutoffdate);
-
     }
 
 }
