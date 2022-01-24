@@ -70,7 +70,23 @@ class observer_test extends \advanced_testcase {
         $newcm2 = duplicate_module($course, get_fast_modinfo($course)->get_cm($assign2->cmid));
         $newcm3 = duplicate_module($course, get_fast_modinfo($course)->get_cm($forum->cmid));
 
-        // Check dates for new restored activities.
+        // Check dates stay the same for new restored activities.
+        $newassign1record = $DB->get_record('assign', ['course' => $course->id, 'id' => $newcm1->instance]);
+        $newassign2record = $DB->get_record('assign', ['course' => $course->id, 'id' => $newcm2->instance]);
+        $this->assertEquals($initialtime->getTimestamp(), $newassign1record->duedate);
+        $this->assertEquals($initialtime->getTimestamp(), $newassign1record->cutoffdate);
+        $this->assertEquals(0, $newassign2record->duedate);
+        $this->assertEquals(0, $newassign2record->cutoffdate);
+
+        // Enable restore reset feature.
+        set_config('restore_enabled', 1, 'local_submissionrestict');
+
+        // Backup and restore activities.
+        $newcm1 = duplicate_module($course, get_fast_modinfo($course)->get_cm($assign1->cmid));
+        $newcm2 = duplicate_module($course, get_fast_modinfo($course)->get_cm($assign2->cmid));
+        $newcm3 = duplicate_module($course, get_fast_modinfo($course)->get_cm($forum->cmid));
+
+        // Check dates changed for new restored activities.
         $newassign1record = $DB->get_record('assign', ['course' => $course->id, 'id' => $newcm1->instance]);
         $newassign2record = $DB->get_record('assign', ['course' => $course->id, 'id' => $newcm2->instance]);
         $initialtime->setTime(23, 55);

@@ -40,31 +40,33 @@ class observer {
     public static function handle_grade_item_created(grade_item_created $event) {
         global $PAGE, $DB;
 
-        if ($PAGE->requestorigin == 'restore' && self::is_activity_related($event, 'assign')) {
-            $gradeitem = \grade_item::fetch([
-                'courseid' => $event->courseid,
-                'id' => $event->objectid,
-            ]);
+        if (get_config('local_submissionrestict', 'restore_enabled')) {
+            if ($PAGE->requestorigin == 'restore' && self::is_activity_related($event, 'assign')) {
+                $gradeitem = \grade_item::fetch([
+                    'courseid' => $event->courseid,
+                    'id' => $event->objectid,
+                ]);
 
-            if ($record = $DB->get_record('assign', ['id' => $gradeitem->iteminstance])) {
-                $needupdate = false;
+                if ($record = $DB->get_record('assign', ['id' => $gradeitem->iteminstance])) {
+                    $needupdate = false;
 
-                if ($record->duedate > 0) {
-                    if ($newdate = local_submissionrestict_calculate_new_time($record->duedate, self::get_restore_time())) {
-                        $record->duedate = $newdate;
-                        $needupdate = true;
+                    if ($record->duedate > 0) {
+                        if ($newdate = local_submissionrestict_calculate_new_time($record->duedate, self::get_restore_time())) {
+                            $record->duedate = $newdate;
+                            $needupdate = true;
+                        }
                     }
-                }
 
-                if ($record->cutoffdate > 0) {
-                    if ($newdate = local_submissionrestict_calculate_new_time($record->cutoffdate, self::get_restore_time())) {
-                        $record->cutoffdate = $newdate;
-                        $needupdate = true;
+                    if ($record->cutoffdate > 0) {
+                        if ($newdate = local_submissionrestict_calculate_new_time($record->cutoffdate, self::get_restore_time())) {
+                            $record->cutoffdate = $newdate;
+                            $needupdate = true;
+                        }
                     }
-                }
 
-                if ($needupdate) {
-                    $DB->update_record('assign', $record);
+                    if ($needupdate) {
+                        $DB->update_record('assign', $record);
+                    }
                 }
             }
         }

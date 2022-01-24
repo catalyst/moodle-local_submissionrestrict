@@ -32,6 +32,13 @@ if ($hassiteconfig && $ADMIN->locate('localplugins')) {
         get_string('pluginname', 'local_submissionrestict')
     );
 
+    $settings->add(new admin_setting_configcheckbox(
+            'local_submissionrestict/restore_enabled',
+            get_string('settings:restore_enabled', 'local_submissionrestict'),
+            get_string('settings:restore_enabled_desc', 'local_submissionrestict'),
+            0)
+    );
+
     $settings->add(new admin_setting_configtime(
         'local_submissionrestict/restore_hour',
         'restore_minute',
