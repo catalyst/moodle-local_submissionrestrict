@@ -51,14 +51,14 @@ class observer {
                     $needupdate = false;
 
                     if ($record->duedate > 0) {
-                        if ($newdate = local_submissionrestict_calculate_new_time($record->duedate, self::get_restore_time())) {
+                        if ($newdate = helper::calculate_new_time($record->duedate, self::get_restore_time())) {
                             $record->duedate = $newdate;
                             $needupdate = true;
                         }
                     }
 
                     if ($record->cutoffdate > 0) {
-                        if ($newdate = local_submissionrestict_calculate_new_time($record->cutoffdate, self::get_restore_time())) {
+                        if ($newdate = helper::calculate_new_time($record->cutoffdate, self::get_restore_time())) {
                             $record->cutoffdate = $newdate;
                             $needupdate = true;
                         }

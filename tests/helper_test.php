@@ -14,32 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Tests for local_submissionrestict lib functions.
- *
- * @package    local_submissionrestict
- * @copyright  2021 Catalyst IT
- * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace local_submissionrestict;
 
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-
-require_once($CFG->dirroot . '/local/submissionrestict/lib.php');
-
 /**
- * Tests for local_submissionrestict lib functions.
+ * Tests for helper class.
  *
  * @package    local_submissionrestict
  * @copyright  2021 Catalyst IT
  * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class lib_test extends \advanced_testcase {
+class helper_test extends \advanced_testcase {
 
     /**
      * Test calculating a new time.
@@ -56,19 +41,19 @@ class lib_test extends \advanced_testcase {
         $time = new \DateTime($now, \core_date::get_user_timezone_object());
         $time->setTime(23, 55);
         $date = $time->getTimestamp();
-        $this->assertNull(local_submissionrestict_calculate_new_time($date, new time(23, 55)));
+        $this->assertNull(helper::calculate_new_time($date, new time(23, 55)));
 
         // Should reset to the same day, but different time.
         $time = new \DateTime($now, \core_date::get_user_timezone_object());
         $time->setTime(13, 55);
         $date = $time->getTimestamp();
-        $this->assertSame($expected, local_submissionrestict_calculate_new_time($date, new time(23, 55)));
+        $this->assertSame($expected, helper::calculate_new_time($date, new time(23, 55)));
 
         // Should return null if new date is the same as old date.
         $time = new \DateTime($now, \core_date::get_user_timezone_object());
         $time->setTime(18, 30);
         $date = $time->getTimestamp();
-        $this->assertNull(local_submissionrestict_calculate_new_time($date, new time(23, 55), [new time(18, 30)]));
+        $this->assertNull(helper::calculate_new_time($date, new time(23, 55), [new time(18, 30)]));
     }
 
 }
