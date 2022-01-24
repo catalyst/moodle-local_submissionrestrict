@@ -14,57 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict;
 
 /**
- * Time class.
+ * Registered observers.
  *
  * @package    local_submissionrestict
- * @author     Dmitrii Metelkin <dmitriim@catalyst-au.net>
- * @copyright  Catalyst IT
+ * @copyright  2022 Catalyst IT
+ * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class time {
 
-    /**
-     * Hour.
-     * @var int
-     */
-    private $hour;
+defined('MOODLE_INTERNAL') || die();
 
-    /**
-     * Minute.
-     * @var int
-     */
-    private $minute;
-
-    /**
-     * Time constructor.
-     *
-     * @param int $hour Hour.
-     * @param int $minute Minute.
-     */
-    public function __construct(int $hour, int $minute) {
-        $this->hour = $hour;
-        $this->minute = $minute;
-    }
-
-    /**
-     * Returns hour.
-     *
-     * @return int
-     */
-    public function get_hour(): int {
-        return $this->hour;
-    }
-
-    /**
-     * Returns minutes.
-     *
-     * @return int
-     */
-    public function get_minute(): int {
-        return $this->minute;
-    }
-
-}
+$observers = [
+    [
+        'eventname' => '\core\event\grade_item_created',
+        'callback'  => '\local_submissionrestict\observer::handle_grade_item_created'
+    ]
+];

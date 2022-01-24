@@ -24,21 +24,19 @@
  */
 
 use \core_calendar\type_factory;
-
-defined('MOODLE_INTERNAL') || die();
+use \local_submissionrestict\time;
 
 /**
  * Calculates a new time based on provided hour and minute.
  * It will return null if provided date doesn't need to be modified.
  *
  * @param int $date A unix time stamp date to calculate a new time for.
- * @param int $newhour A new hour to set.
- * @param int $newminute a new minute to set.
+ * @param time $newtime A new time.
  * @param \local_submissionrestict\time[] $ignoretimes A list of times to ignore.
  *
  * @return int|null New unix time stamp.
  */
-function local_submissionrestict_calculate_new_time(int $date, int $newhour, int $newminute, array $ignoretimes = []): ?int {
+function local_submissionrestict_calculate_new_time(int $date, time $newtime, array $ignoretimes = []): ?int {
     $newdate = null;
     $ignore = false;
 
@@ -47,7 +45,7 @@ function local_submissionrestict_calculate_new_time(int $date, int $newhour, int
     $currentdate = $calendartype->timestamp_to_date_array($date);
     $currentdate['minutes'] -= $currentdate['minutes'] % 5;
 
-    if ($currentdate['hours'] <> $newhour || $currentdate['minutes'] <> $newminute) {
+    if ($currentdate['hours'] <> $newtime->get_hour() || $currentdate['minutes'] <> $newtime->get_minute()) {
         // Check if the current time is in the list of times to ignore.
         foreach ($ignoretimes as $ignoretime) {
             if ($currentdate['hours'] == $ignoretime->get_hour() && $currentdate['minutes'] == $ignoretime->get_minute()) {
@@ -56,8 +54,8 @@ function local_submissionrestict_calculate_new_time(int $date, int $newhour, int
         }
 
         if (!$ignore) {
-            $currentdate['hour'] = $newhour;
-            $currentdate['minute'] = $newminute;
+            $currentdate['hour'] = $newtime->get_hour();
+            $currentdate['minute'] = $newtime->get_minute();
 
             $gregoriandate = $calendartype->convert_to_gregorian(
                 $currentdate['year'],
