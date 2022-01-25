@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 namespace local_submissionrestict;
 
 /**
@@ -30,15 +29,15 @@ class observer_test extends \advanced_testcase {
     /**
      * Test handling grade_item_created event.
      */
-    public function test_handle_grade_item_created() {
+    public function test_handle_grade_item_created_for_assign() {
         global $DB;
 
         $this->resetAfterTest();
         $this->setAdminUser();
 
         // Config default restore time.
-        set_config('restore_hour', 23, 'local_submissionrestict');
-        set_config('restore_minute', 55, 'local_submissionrestict');
+        set_config('assign_restore_hour', 23, 'local_submissionrestict');
+        set_config('assign_restore_minute', 55, 'local_submissionrestict');
 
         // Set initial date and time.
         $now = '12.11.2021 13:00';
@@ -79,7 +78,7 @@ class observer_test extends \advanced_testcase {
         $this->assertEquals(0, $newassign2record->cutoffdate);
 
         // Enable restore reset feature.
-        set_config('restore_enabled', 1, 'local_submissionrestict');
+        set_config('assign_restore_enabled', 1, 'local_submissionrestict');
 
         // Backup and restore activities.
         $newcm1 = duplicate_module($course, get_fast_modinfo($course)->get_cm($assign1->cmid));

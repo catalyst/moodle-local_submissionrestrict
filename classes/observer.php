@@ -38,61 +38,38 @@ class observer {
      * @param grade_item_created $event
      */
     public static function handle_grade_item_created(grade_item_created $event) {
-        global $PAGE, $DB;
+        global $PAGE;
 
-        if (get_config('local_submissionrestict', 'restore_enabled')) {
-            if ($PAGE->requestorigin == 'restore' && self::is_activity_related($event, 'assign')) {
+        if ($PAGE->requestorigin == 'restore' && $mod = self::get_mod_from_event($event)) {
+            $mods = mod_manager::get_mods();
+
+            if (array_key_exists($mod, $mods) && $mods[$mod]->is_restore_reset_enabled()) {
                 $gradeitem = \grade_item::fetch([
                     'courseid' => $event->courseid,
                     'id' => $event->objectid,
                 ]);
 
-                if ($record = $DB->get_record('assign', ['id' => $gradeitem->iteminstance])) {
-                    $needupdate = false;
-
-                    if ($record->duedate > 0) {
-                        if ($newdate = helper::calculate_new_time($record->duedate, self::get_restore_time())) {
-                            $record->duedate = $newdate;
-                            $needupdate = true;
-                        }
-                    }
-
-                    if ($record->cutoffdate > 0) {
-                        if ($newdate = helper::calculate_new_time($record->cutoffdate, self::get_restore_time())) {
-                            $record->cutoffdate = $newdate;
-                            $needupdate = true;
-                        }
-                    }
-
-                    if ($needupdate) {
-                        $DB->update_record('assign', $record);
-                    }
+                if (!empty($gradeitem)) {
+                    $mods[$mod]->reset_submission_dates_by_grade_item($gradeitem);
                 }
             }
         }
     }
 
     /**
-     * Check if provided event is assignment related event.
+     * Get mod type from provided event.
      *
      * @param \core\event\grade_item_created $event Event.
-     * @param string $activitytype Activity type. E.g. assign, forum and etc.
-     *
-     * @return bool
+     * @return string
      */
-    protected static function is_activity_related(grade_item_created $event, string $activitytype): bool {
-        return $event->other['itemtype'] == 'mod' && $event->other['itemmodule'] == $activitytype;
-    }
+    protected static function get_mod_from_event(grade_item_created $event): ?string {
+        $activitytype = null;
 
-    /**
-     * Get a new time to force restored assignemnts to.
-     * @return \local_submissionrestict\time
-     */
-    protected static function get_restore_time(): time {
-        return new time(
-            (int)get_config('local_submissionrestict', 'restore_hour'),
-            (int)get_config('local_submissionrestict', 'restore_minute')
-        );
+        if ($event->other['itemtype'] == 'mod' && !empty($event->other['itemmodule'])) {
+            $activitytype = $event->other['itemmodule'];
+        }
+
+        return $activitytype;
     }
 
 }
