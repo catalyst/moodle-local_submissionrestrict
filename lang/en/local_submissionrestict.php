@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['pluginname'] = 'Submission restrictions';
 $string['privacy:metadata:local_submissionrestict'] = 'Details of Submission restriction data.';
 $string['privacy:metadata:local_submissionrestict:usermodified'] = 'ID of user who last created or modified the restrictions.';
+$string['settings:restore'] = 'Default time after restore';
 $string['settings:restore_desc'] = 'Choose time submissions due date will be default to after an activity is restored.';
 $string['settings:restore_enabled'] = 'Reset time after restore';
 $string['settings:restore_enabled_desc'] = 'If enabled, due dates will be reset to a default time after supported activities are restored.';
