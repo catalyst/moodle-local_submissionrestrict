@@ -100,7 +100,7 @@ class provider implements
         list($insql, $params) = $DB->get_in_or_equal($contextids, SQL_PARAMS_NAMED);
         $params['usermodified'] = $contextlist->get_user()->id;
 
-        $sql = "SELECT c.id, ls.usermodified, ls.timecreated, ls.timemodified 
+        $sql = "SELECT c.id, ls.usermodified, ls.timecreated, ls.timemodified
                   FROM {local_submissionrestict} ls
             INNER JOIN {course_modules} cm ON cm.id = ls.cmid
             INNER JOIN {context} c ON cm.id = c.instanceid
