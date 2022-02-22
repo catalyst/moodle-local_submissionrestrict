@@ -160,7 +160,7 @@ abstract class mod_base {
      * @return false|\local_submissionrestict\restrict
      */
     public function get_restriction_record(int $cmid) {
-        return restrict::get_record(['mod' => $this->get_name(), 'cmid' => $cmid]);
+        return restrict::get_record(['cmid' => $cmid]);
     }
 
 }
