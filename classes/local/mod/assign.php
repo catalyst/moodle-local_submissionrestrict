@@ -43,15 +43,6 @@ class assign extends mod_base {
     const NEW_DUEDATE_FORM_FIELD = 'newdate';
 
     /**
-     * Check if a user can use Other option for dues date and override standard times.
-     * @return bool
-     */
-    protected function has_override_permissions(): bool {
-        // TODO: new permissions.
-        return is_siteadmin();
-    }
-
-    /**
      * Check if new due date is overridden. AKA Other option is selected.
      *
      * @param stdClass $moduleinfo Module info data.

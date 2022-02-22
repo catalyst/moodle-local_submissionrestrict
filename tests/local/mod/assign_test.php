@@ -16,9 +16,8 @@
 
 namespace local_submissionrestict\local\mod;
 
-/**
+use local_submissionrestict\restrict;/**
  * Tests for assign class.
- *
  * @package    local_submissionrestict
  * @copyright  2022 Catalyst IT
  * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
@@ -119,4 +118,61 @@ class assign_test extends \advanced_testcase {
         $this->assertEquals(0, $assign2record->duedate);
         $this->assertEquals(0, $assign2record->cutoffdate);
     }
+
+    /**
+     * Test getting restriction record.
+     */
+    public function test_get_restriction_record() {
+        $this->resetAfterTest();
+
+        $assign = new assign();
+
+        $this->assertFalse($assign->get_restriction_record(10));
+
+        $restrictrecord = new restrict();
+        $restrictrecord->set('cmid', 10);
+        $restrictrecord->set('newdate', time());
+        $restrictrecord->set('mod', $assign->get_name());
+        $restrictrecord->set('reason', 'Test reason');
+        $restrictrecord->save();
+
+        $actual = $assign->get_restriction_record(10);
+        $this->assertEquals(10, $actual->get('cmid'));
+        $this->assertEquals('assign', $actual->get('mod'));
+        $this->assertEquals('Test reason', $actual->get('reason'));
+    }
+
+    /**
+     * Test checking override permissions.
+     */
+    public function test_has_override_permissions() {
+        global $DB, $COURSE;
+
+        $this->resetAfterTest();
+
+        $assign = new assign();
+        $course = $this->getDataGenerator()->create_course();
+        $coursecontext = \context_course::instance($course->id);
+        $user = $this->getDataGenerator()->create_user();
+
+        $this->setAdminUser();
+        $this->assertTrue($assign->has_override_permissions());
+        $this->assertTrue($assign->has_override_permissions($coursecontext));
+
+        $this->setUser($user);
+        $this->assertFalse($assign->has_override_permissions());
+        $this->assertFalse($assign->has_override_permissions($coursecontext));
+
+        $role = $DB->get_record('role', ['shortname' => 'editingteacher'], '*', MUST_EXIST);
+        assign_capability('local/submissionrestict:override', CAP_ALLOW, $role->id, $coursecontext);
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, $role->id);
+
+        $this->assertFalse($assign->has_override_permissions());
+        $this->assertTrue($assign->has_override_permissions($coursecontext));
+
+        $COURSE = $course;
+        $this->assertTrue($assign->has_override_permissions());
+        $this->assertTrue($assign->has_override_permissions($coursecontext));
+    }
+
 }

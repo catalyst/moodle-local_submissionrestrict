@@ -163,4 +163,20 @@ abstract class mod_base {
         return restrict::get_record(['cmid' => $cmid]);
     }
 
+    /**
+     * Check if a user can override standard times.
+     *
+     * @param \context|null $context Context to check permissions for.
+     * @return bool
+     */
+    public function has_override_permissions(\context $context = null): bool {
+        global $COURSE;
+
+        if (is_null($context)) {
+            $context = \context_course::instance($COURSE->id);
+        }
+
+        return has_capability('local/submissionrestict:override', $context);
+    }
+
 }
