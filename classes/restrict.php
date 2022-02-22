@@ -43,7 +43,7 @@ class restrict extends persistent {
             'cmid' => [
                 'type' => PARAM_INT,
             ],
-            'mod' => [
+            'modname' => [
                 'type' => PARAM_ALPHANUMEXT,
             ],
             'newdate' => [

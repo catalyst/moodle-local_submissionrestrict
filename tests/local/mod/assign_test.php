@@ -16,7 +16,9 @@
 
 namespace local_submissionrestict\local\mod;
 
-use local_submissionrestict\restrict;/**
+use local_submissionrestict\restrict;
+
+/**
  * Tests for assign class.
  * @package    local_submissionrestict
  * @copyright  2022 Catalyst IT
@@ -132,13 +134,13 @@ class assign_test extends \advanced_testcase {
         $restrictrecord = new restrict();
         $restrictrecord->set('cmid', 10);
         $restrictrecord->set('newdate', time());
-        $restrictrecord->set('mod', $assign->get_name());
+        $restrictrecord->set('modname', $assign->get_name());
         $restrictrecord->set('reason', 'Test reason');
         $restrictrecord->save();
 
         $actual = $assign->get_restriction_record(10);
         $this->assertEquals(10, $actual->get('cmid'));
-        $this->assertEquals('assign', $actual->get('mod'));
+        $this->assertEquals('assign', $actual->get('modname'));
         $this->assertEquals('Test reason', $actual->get('reason'));
     }
 

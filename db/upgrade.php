@@ -57,5 +57,18 @@ function xmldb_local_submissionrestict_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 202111003, 'local', 'submissionrestict');
     }
 
+    if ($oldversion < 202111005) {
+        $table = new xmldb_table('local_submissionrestict');
+
+        if ($dbman->table_exists($table)) {
+            $field = new xmldb_field('mod', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL);
+            if ($dbman->field_exists($table, $field)) {
+                $dbman->rename_field($table, $field, 'modname');
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 202111005, 'local', 'submissionrestict');
+    }
+
     return true;
 }

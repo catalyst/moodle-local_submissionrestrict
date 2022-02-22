@@ -261,7 +261,7 @@ class assign extends mod_base {
                     $restrictrecord = new restrict();
                     $restrictrecord->set('cmid', $moduleinfo->coursemodule);
                     $restrictrecord->set('newdate', $newdate);
-                    $restrictrecord->set('mod', $this->get_name());
+                    $restrictrecord->set('modname', $this->get_name());
                 }
                 $restrictrecord->set('reason', $moduleinfo->reason);
                 $restrictrecord->save();
