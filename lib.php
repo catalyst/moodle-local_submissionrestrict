@@ -23,4 +23,96 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+use local_submissionrestict\mod_manager;
+
+/**
+ * Extend course module form.
+ *
+ * @param \moodleform_mod $modform Mod form instance.
+ * @param \MoodleQuickForm $form Form instance.
+ */
+function local_submissionrestict_coursemodule_standard_elements(moodleform_mod $modform, MoodleQuickForm $form): void {
+    $cm = $modform->get_coursemodule();
+    $modname = '';
+
+    // Coerce modname from course module if we are updating existing module.
+    if (!empty($cm) && !empty($cm->modname)) {
+        $modname = $cm->modname;
+    } else if (!empty($modform->get_current()->modulename)) {
+        $modname = $modform->get_current()->modulename;
+    }
+
+    if (!empty($modname)) {
+        $mods = mod_manager::get_mods();
+        if (!empty($mods[$modname])) {
+            $mods[$modname]->coursemodule_standard_elements($modform, $form);
+        }
+    }
+}
+
+
+/**
+ * Extend course module form after the data already set.
+ *
+ * @param \moodleform_mod $modform Mod form instance.
+ * @param \MoodleQuickForm $form Form instance.
+ */
+function local_submissionrestict_coursemodule_definition_after_data(moodleform_mod $modform, MoodleQuickForm $form): void {
+    $modname = $modform->get_current()->modulename;
+
+    if (!empty($modname)) {
+        $mods = mod_manager::get_mods();
+        if (!empty($mods[$modname])) {
+            $mods[$modname]->coursemodule_definition_after_data($modform, $form);
+        }
+    }
+}
+
+/**
+ * Extend course module form submission.
+ *
+ * @param stdClass $moduleinfo Module info data.
+ * @param stdClass $course Course instance.
+ *
+ * @return stdClass Mutated module info data.
+ */
+function local_submissionrestict_coursemodule_edit_post_actions(stdClass $moduleinfo, stdClass $course): stdClass {
+    if (!empty($moduleinfo->modulename)) {
+        $mods = mod_manager::get_mods();
+        if (!empty($mods[$moduleinfo->modulename])) {
+            $moduleinfo = $mods[$moduleinfo->modulename]->coursemodule_edit_post_actions($moduleinfo, $course);
+        }
+    }
+    return $moduleinfo;
+}
+
+/**
+ * Extend course mod form validation.
+ *
+ * @param \moodleform_mod $modform Mod form instance.
+ * @param array $data Submitted data.
+ *
+ * @return array
+ */
+function local_submissionrestict_coursemodule_validation(moodleform_mod $modform, array $data): array {
+    $errors = [];
+
+    $cm = $modform->get_coursemodule();
+    $modname = '';
+
+    if (!empty($cm) && !empty($cm->modname)) {
+        $modname = $cm->modname;
+    } else if (!empty($modform->get_current()->modulename)) {
+        $modname = $modform->get_current()->modulename;
+    }
+
+    if (!empty($modname)) {
+        $mods = mod_manager::get_mods();
+        if (!empty($mods[$modname])) {
+            $errors = $mods[$modname]->coursemodule_validation($modform, $data);
+        }
+    }
+
+    return $errors;
+}
+

@@ -27,6 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Submission restrictions';
+$string['error:reasonrequired'] = 'You have to provide a reason for variation';
 $string['privacy:metadata:local_submissionrestict'] = 'Details of Submission restriction data.';
 $string['privacy:metadata:local_submissionrestict:usermodified'] = 'ID of user who last created or modified the restrictions.';
 $string['settings:restore'] = 'Default time after restore';

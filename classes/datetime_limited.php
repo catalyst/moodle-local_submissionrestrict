@@ -38,6 +38,11 @@ require_once($CFG->libdir . '/formslib.php');
 class datetime_limited extends MoodleQuickForm_group {
 
     /**
+     * Other option value.
+     */
+    const OTHER_VALUE = 'other';
+
+    /**
      * Options for the element.
      *
      * startyear => int start of range of years that can be selected
@@ -49,6 +54,7 @@ class datetime_limited extends MoodleQuickForm_group {
      *      {@link http://docs.moodle.org/dev/Time_API#Timezone}
      * optional  => if true, show a checkbox beside the date to turn it on (or off)
      * timeslots => a list of timeslots to limit date.
+     * override =>  allow other option.
      * @var array
      */
     protected $_options = [];
@@ -77,7 +83,7 @@ class datetime_limited extends MoodleQuickForm_group {
         // Get the calendar type used - see MDL-18375.
         $calendartype = \core_calendar\type_factory::get_calendar_instance();
         $this->_options = ['startyear' => $calendartype->get_min_year(), 'stopyear' => $calendartype->get_max_year(),
-            'defaulttime' => 0, 'timezone' => 99, 'timeslots' => [], 'optional' => false];
+            'defaulttime' => 0, 'timezone' => 99, 'timeslots' => [], 'override' => false, 'optional' => false];
 
         parent::__construct($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
@@ -94,6 +100,11 @@ class datetime_limited extends MoodleQuickForm_group {
                     }
                 }
             }
+
+            if (!empty($this->_options['timeslots']) && !empty($this->_options['override'])) {
+                $this->_options['timeslots'][self::OTHER_VALUE] = get_string('other');
+            }
+
         }
     }
 
@@ -176,9 +187,14 @@ class datetime_limited extends MoodleQuickForm_group {
                 if (!is_array($value)) {
                     $calendartype = \core_calendar\type_factory::get_calendar_instance();
                     $currentdate = $calendartype->timestamp_to_date_array($value, $this->_options['timezone']);
+                    if ($currentdate['hours'] == 0 && $currentdate['minutes'] == 0) {
+                        $time = self::OTHER_VALUE;
+                    } else {
+                        $time = $currentdate['hours'] . ':' . $currentdate['minutes'];
+                    }
 
                     $value = [
-                        'time' => $currentdate['hours'] . ':' . $currentdate['minutes'],
+                        'time' => $time,
                         'day' => $currentdate['mday'],
                         'month' => $currentdate['mon'],
                         'year' => $currentdate['year']
@@ -216,6 +232,18 @@ class datetime_limited extends MoodleQuickForm_group {
         }
 
         return true;
+    }
+
+    public function freeze() {
+        parent::freeze();
+
+        // Delete calendar link to avoid JS errors.
+        foreach ($this->_elements as $key => $element) {
+            if($element->getType() == 'link') {
+                unset($this->_elements[$key]);
+                $this->_elements = array_values($this->_elements);
+            }
+        }
     }
 
     /**
@@ -278,15 +306,21 @@ class datetime_limited extends MoodleQuickForm_group {
                 $valuearray += $thisexport;
             }
         }
-        if (count($valuearray)){
 
-            if (!empty($valuearray['time'])) {
-                $times = explode(':', $valuearray['time']);
-                $valuearray['hour'] = $times[0];
-                $valuearray['minute'] = $times[1];
-            } else {
-                $valuearray['hour'] = 0;
-                $valuearray['minute'] = 0;
+        $overridden = false;
+
+        if (count($valuearray)){
+            if (!empty($valuearray['enabled'])) {
+
+                if ($valuearray['time'] == self::OTHER_VALUE) {
+                    $overridden = true;
+                    $valuearray['hour'] = 0;
+                    $valuearray['minute'] = 0;
+                } else {
+                    $times = explode(':', $valuearray['time']);
+                    $valuearray['hour'] = $times[0];
+                    $valuearray['minute'] = $times[1];
+                }
             }
 
             if($this->_options['optional']) {
@@ -303,7 +337,7 @@ class datetime_limited extends MoodleQuickForm_group {
                                                                  $valuearray['day'],
                                                                  $valuearray['hour'],
                                                                  $valuearray['minute']);
-            $value = make_timestamp($gregoriandate['year'],
+            $value['time'] = make_timestamp($gregoriandate['year'],
                                                       $gregoriandate['month'],
                                                       $gregoriandate['day'],
                                                       $gregoriandate['hour'],
@@ -311,6 +345,7 @@ class datetime_limited extends MoodleQuickForm_group {
                                                       0,
                                                       $this->_options['timezone'],
                                                       true);
+            $value['overridden'] = $overridden;
 
             return $this->_prepareValue($value, $assoc);
         } else {

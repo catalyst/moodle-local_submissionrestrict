@@ -20,6 +20,9 @@ use admin_settingpage;
 use admin_setting_heading;
 use admin_setting_configcheckbox;
 use admin_setting_configtime;
+use moodleform_mod;
+use MoodleQuickForm;
+use stdClass;
 
 /**
  * Base mod restriction class.
@@ -89,6 +92,42 @@ abstract class mod_base {
     }
 
     /**
+     * Extend course module form.
+     *
+     * @param \moodleform_mod $modform Mod form instance.
+     * @param \MoodleQuickForm $form Form instance.
+     */
+    abstract public function coursemodule_standard_elements(moodleform_mod $modform, MoodleQuickForm $form): void;
+
+    /**
+     * Extend course module form submission.
+     *
+     * @param stdClass $moduleinfo Module info data.
+     * @param stdClass $course Course instance.
+     *
+     * @return stdClass Mutated module info data.
+     */
+    abstract public function coursemodule_edit_post_actions(stdClass $moduleinfo, stdClass $course): stdClass;
+
+    /**
+     * Extend course mod form validation.
+     *
+     * @param \moodleform_mod $modform Mod form instance.
+     * @param array $data Submitted data.
+     *
+     * @return array
+     */
+    abstract public function coursemodule_validation(moodleform_mod $modform, array $data): array;
+
+    /**
+     * Extend course module form after data is already set.
+     *
+     * @param \moodleform_mod $modform Mod form instance.
+     * @param \MoodleQuickForm $form Form instance.
+     */
+    abstract public function coursemodule_definition_after_data(moodleform_mod $modform, MoodleQuickForm $form): void;
+
+    /**
      * Reset submission dates by provided grade item.
      *
      * @param \grade_item $gradeitem
@@ -112,6 +151,16 @@ abstract class mod_base {
             (int)get_config('local_submissionrestict', $this->build_config_name('restore_hour')),
             (int)get_config('local_submissionrestict', $this->build_config_name('restore_minute'))
         );
+    }
+
+    /**
+     * Get restriction record by cmid.
+     *
+     * @param int $cmid Course module ID.
+     * @return false|\local_submissionrestict\restrict
+     */
+    public function get_restriction_record(int $cmid) {
+        return restrict::get_record(['mod' => $this->get_name(), 'cmid' => $cmid]);
     }
 
 }
