@@ -16,6 +16,8 @@
 
 namespace local_submissionrestict\local\mod;
 
+use admin_settingpage;
+use admin_setting_configtextarea;
 use core_calendar\type_factory;
 use local_submissionrestict\datetime_limited;
 use local_submissionrestict\helper;
@@ -43,6 +45,29 @@ class assign extends mod_base {
     const NEW_DUEDATE_FORM_FIELD = 'newdate';
 
     /**
+     * Add extra settings if required.
+     *
+     * @param \admin_settingpage $settings
+     */
+    protected function add_extra_settings(admin_settingpage $settings): void {
+        parent::add_extra_settings($settings);
+
+        $settings->add(new admin_setting_configtextarea(
+            "local_submissionrestict/{$this->build_config_name('timeslots')}",
+            get_string('settings:timeslots', 'local_submissionrestict'),
+            get_string('settings:timeslots_desc', 'local_submissionrestict'),
+            '')
+        );
+
+        $settings->add(new admin_setting_configtextarea(
+            "local_submissionrestict/{$this->build_config_name('reasons')}",
+            get_string('settings:reasons', 'local_submissionrestict'),
+            get_string('settings:reasons_desc', 'local_submissionrestict'),
+            '')
+        );
+    }
+
+    /**
      * Check if new due date is overridden. AKA Other option is selected.
      *
      * @param stdClass $moduleinfo Module info data.
@@ -61,8 +86,22 @@ class assign extends mod_base {
      * @return string[]
      */
     protected function get_available_time_slots(): array {
-        // TODO: add config settings.
-        return ['09:30' => '09:30', '16:30' => '16:30', '23:55' => '23:55'];
+        $timeslots = [];
+
+        $config = get_config('local_submissionrestict', $this->build_config_name('timeslots'));
+
+        if (!empty($config)) {
+            $items = explode("\n", str_replace("\r\n", "\n", $config));
+
+            foreach ($items as $item) {
+                $data = explode(':', $item);
+                if (count($data) == 2 && !empty(trim($data[0])) && !empty(trim($data[1]))) {
+                    $timeslots[trim($item)] = trim($item);
+                }
+            }
+        }
+
+        return $timeslots;
     }
 
     /**
@@ -70,8 +109,22 @@ class assign extends mod_base {
      * @return string[]
      */
     protected function get_reason_options(): array {
-        // TODO: add config setting.
-        return [0 => 'Reason for variation', 'Reason1' => 'Reason1', 'Reason2' => 'Reason2'];
+        $reasons = [];
+        $reasons[0] = get_string('reason', 'local_submissionrestict');
+
+        $config = get_config('local_submissionrestict', $this->build_config_name('reasons'));
+
+        if (!empty($config)) {
+            $items = explode("\n", str_replace("\r\n", "\n", $config));
+
+            foreach ($items as $item) {
+                if (!empty(trim($item))) {
+                    $reasons[trim($item)] = trim($item);
+                }
+            }
+        }
+
+        return $reasons;
     }
 
     /**
