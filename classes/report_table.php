@@ -40,20 +40,20 @@ class report_table extends table_sql {
      * @param array $filters array of optional filters to apply to data.
      * @param int $page current page.
      * @param int $perpage results per page.
-     * @param bool $downloading is this table being built for download?
      */
     public function __construct(string $uniqueid, array $filters = [], int $page = 0,
-                                int $perpage = 30, bool $downloading = false) {
+                                int $perpage = 30) {
         parent::__construct($uniqueid);
 
+        $this->currpage = $page;
+        $this->pagesize = $perpage;
+        $this->filters = $filters;
         $this->show_download_buttons_at(array(TABLE_P_BOTTOM));
         $this->define_columns($this->get_columns());
         $this->define_headers($this->get_headers());
-        $this->currpage = $page;
-        $this->pagesize = $perpage;
-        $this->use_pages = true;
-        $this->filters = $filters;
         $this->sortable(false);
+        $this->collapsible(false);
+        $this->pageable(true);
     }
 
     /**
@@ -132,19 +132,19 @@ class report_table extends table_sql {
         if ($count) {
             $select = "COUNT(1)";
         } else {
-            $select = "ls.cmid, c.id as courseid, c.fullname, ls.modname,  ls.newdate, ls.reason, c.category ";
+            $select = "ls.cmid, c.id as courseid, c.fullname, ls.modname, ls.newdate, ls.reason, c.category ";
         }
 
         list($where, $params) = $this->get_filters_sql_and_params();
 
-        $sql = "SELECT $select 
+        $sql = "SELECT $select
                   FROM {local_submissionrestict} ls
              LEFT JOIN {course_modules} cm ON ls.cmid = cm.id
              LEFT JOIN {course} c ON cm.course = c.id
                  WHERE $where";
 
-        if (!$count && $sqlsort = $this->get_sql_sort()) {
-            $sql .= " ORDER BY " . $sqlsort;
+        if (!$count) {
+            $sql .= " ORDER BY ls.id";
         }
 
         return [$sql, $params];
@@ -161,20 +161,20 @@ class report_table extends table_sql {
         $filter = 'c.id IS NOT NULL';
         $params = [];
 
-        if (!empty($this->filters->category)) {
-            $coursecat = \core_course_category::get($this->filters->category);
+        if (!empty($this->filters['category'])) {
+            $coursecat = \core_course_category::get($this->filters['category']);
 
             if ($coursecat->has_children()) {
                 $categories = $coursecat->get_all_children_ids();
                 $coursecat->get_nested_name();
-                $categories[] = $this->filters->category;
+                $categories[] = $this->filters['category'];
                 list($insql, $plist) = $DB->get_in_or_equal($categories, SQL_PARAMS_NAMED);
                 $filter .= " AND c.category $insql";
                 $params += $plist;
 
             } else {
                 $filter .= ' AND c.category = :category';
-                $params['category'] = $this->filters->category;
+                $params['category'] = $this->filters['category'];
             }
         }
 

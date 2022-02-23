@@ -147,3 +147,30 @@ function local_submissionrestict_pre_course_delete($course) {
         local_submissionrestict_pre_course_module_delete($module);
     }
 }
+
+/**
+ * Extend category navigation.
+ *
+ * @param \navigation_node $nav Navigation node.
+ * @param \context_coursecat $context Category context.
+ */
+function local_submissionrestict_extend_navigation_category_settings(navigation_node $nav, context_coursecat $context) {
+
+    // Report link.
+    if (has_capability('local/submissionrestict:overridereport', $context)) {
+        $title = get_string('report:title', 'local_submissionrestict');
+        $url = new moodle_url("/local/submissionrestict/report.php",
+            ['category' => $context->instanceid, 'pagecontextid' => $context->id]
+        );
+
+        $nav->add_node(navigation_node::create(
+            $title,
+            $url,
+            navigation_node::TYPE_SETTING,
+            null,
+            null,
+            new pix_icon('i/report', $title)
+        ));
+    }
+}
+

@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_submissionrestict';
-$plugin->version = 202111005;
-$plugin->release = 202111005;
+$plugin->version = 202111006;
+$plugin->release = 202111006;
 $plugin->requires = 2020061500;
 $plugin->maturity = MATURITY_STABLE;

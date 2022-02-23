@@ -30,4 +30,8 @@ $capabilities = [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSECAT,
     ],
+    'local/submissionrestict:overridereport' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSECAT,
+    ],
 ];

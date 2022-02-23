@@ -28,28 +28,56 @@ use local_submissionrestict\report_table;
 require_once('../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 
-admin_externalpage_setup('local_submissionrestict_report');
-
+$pagecontextid = required_param('pagecontextid', PARAM_INT);
+$category = optional_param('category', 0, PARAM_INT);
 $page = optional_param('page', 0, PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
 $perpage = optional_param('perpage', 30, PARAM_INT);
 
-$baseurl = new moodle_url('/local/submissionrestict/report.php');
-$PAGE->set_url($baseurl->out(false));
-$PAGE->set_context(context_system::instance());
+$context = context::instance_by_id($pagecontextid);
 
-// TODO: Replace with a form with filters.
-$filters = [];
+$defaultcategoryid = $category;
+$category = core_course_category::get($defaultcategoryid);
 
-$table = new report_table('local_submissionrestict_report', $filters, $page, $perpage, !empty($download));
-$table->is_downloading($download, 'report', get_string('report:title', 'local_submissionrestict'));
+require_login();
+require_capability('local/submissionrestict:overridereport', $context);
+
+$baseurl = new moodle_url('/local/submissionrestict/report.php', [
+    'pagecontextid' => $context->id
+]);
+
+$PAGE->set_context($context);
+$PAGE->set_url($baseurl);
+
+$filters = [
+    'category' => $defaultcategoryid,
+];
+
+$mform = new \local_submissionrestict\report_form($baseurl->out(false), ['categoryid' => $defaultcategoryid]);
+
+if ($data = $mform->get_data()) {
+    $filters['category'] = $data->category;
+} else {
+    $filters['category'] = $defaultcategoryid;
+}
+
+foreach ($filters as $name => $value) {
+    $baseurl->param($name, $value);
+}
+
+$table = new report_table('local_submissionrestict_report', $filters, $page, $perpage);
+$table->is_downloading($download, 'submission_overrides_report', get_string('report:title', 'local_submissionrestict'));
 $output = $PAGE->get_renderer('local_submissionrestict');
 
 if (!$table->is_downloading()) {
+    $PAGE->navbar->add(get_string('report:title', 'local_submissionrestict'));
     $PAGE->set_pagelayout('report');
     $PAGE->set_title(get_string('report:title', 'local_submissionrestict'));
-    $PAGE->set_heading(get_string('report:heading', 'local_submissionrestict'));
+    $PAGE->set_heading(get_string('report:title', 'local_submissionrestict'));
+
     echo $output->header();
+    echo $output->heading(get_string('report:title', 'local_submissionrestict'));
+    echo $mform->render();
 }
 
 $table->define_baseurl($baseurl->out(false));
