@@ -58,7 +58,14 @@ function local_submissionrestict_coursemodule_standard_elements(moodleform_mod $
  * @param \MoodleQuickForm $form Form instance.
  */
 function local_submissionrestict_coursemodule_definition_after_data(moodleform_mod $modform, MoodleQuickForm $form): void {
-    $modname = $modform->get_current()->modulename;
+    $cm = $modform->get_coursemodule();
+    $modname = '';
+
+    if (!empty($cm) && !empty($cm->modname)) {
+        $modname = $cm->modname;
+    } else if (!empty($modform->get_current()->modulename)) {
+        $modname = $modform->get_current()->modulename;
+    }
 
     if (!empty($modname)) {
         $mods = mod_manager::get_mods();
