@@ -14,29 +14,46 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace local_submissionrestict;
+
+use core\persistent;
+
 /**
- * Settings for local_submissionrestict plugin.
+ * Class containing restrictions for activities.
  *
  * @package     local_submissionrestict
- * @copyright   2022 Catalyst IT
+ * @copyright   2021 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class restrict extends persistent {
 
-defined('MOODLE_INTERNAL') || die();
+    /**
+     * Table name.
+     */
+    const TABLE = 'local_submissionrestict';
 
-use local_submissionrestict\mod_manager;
-
-if ($hassiteconfig && $ADMIN->locate('localplugins')) {
-
-    $settings = new admin_settingpage(
-        'local_submissionrestict_settings',
-        get_string('pluginname', 'local_submissionrestict')
-    );
-
-    foreach (mod_manager::get_mods() as $mod) {
-        $mod->add_settings($settings);
+    /**
+     * Return the definition of the properties of this model.
+     *
+     * @return array
+     */
+    protected static function define_properties(): array {
+        return [
+            'cmid' => [
+                'type' => PARAM_INT,
+            ],
+            'modname' => [
+                'type' => PARAM_ALPHANUMEXT,
+            ],
+            'newdate' => [
+                'type' => PARAM_INT,
+                'default' => 0,
+            ],
+            'reason' => [
+                'type' => PARAM_RAW,
+            ],
+        ];
     }
 
-    $ADMIN->add('localplugins', $settings);
 }

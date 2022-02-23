@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - https://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,10 +12,10 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Define capabilities.
  *
  * @package     local_submissionrestict
  * @copyright   2021 Catalyst IT
@@ -25,8 +25,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_submissionrestict';
-$plugin->version = 202111005;
-$plugin->release = 202111005;
-$plugin->requires = 2020061500;
-$plugin->maturity = MATURITY_STABLE;
+$capabilities = [
+    'local/submissionrestict:override' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSECAT,
+    ],
+];

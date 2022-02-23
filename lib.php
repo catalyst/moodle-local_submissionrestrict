@@ -23,55 +23,127 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use \core_calendar\type_factory;
-use \local_submissionrestict\time;
+use local_submissionrestict\mod_manager;
 
 /**
- * Calculates a new time based on provided hour and minute.
- * It will return null if provided date doesn't need to be modified.
+ * Extend course module form.
  *
- * @param int $date A unix time stamp date to calculate a new time for.
- * @param time $newtime A new time.
- * @param \local_submissionrestict\time[] $ignoretimes A list of times to ignore.
- *
- * @return int|null New unix time stamp.
+ * @param \moodleform_mod $modform Mod form instance.
+ * @param \MoodleQuickForm $form Form instance.
  */
-function local_submissionrestict_calculate_new_time(int $date, time $newtime, array $ignoretimes = []): ?int {
-    $newdate = null;
-    $ignore = false;
+function local_submissionrestict_coursemodule_standard_elements(moodleform_mod $modform, MoodleQuickForm $form): void {
+    $cm = $modform->get_coursemodule();
+    $modname = '';
 
-    $calendartype = type_factory::get_calendar_instance();
+    // Coerce modname from course module if we are updating existing module.
+    if (!empty($cm) && !empty($cm->modname)) {
+        $modname = $cm->modname;
+    } else if (!empty($modform->get_current()->modulename)) {
+        $modname = $modform->get_current()->modulename;
+    }
 
-    $currentdate = $calendartype->timestamp_to_date_array($date);
-    $currentdate['minutes'] -= $currentdate['minutes'] % 5;
-
-    if ($currentdate['hours'] <> $newtime->get_hour() || $currentdate['minutes'] <> $newtime->get_minute()) {
-        // Check if the current time is in the list of times to ignore.
-        foreach ($ignoretimes as $ignoretime) {
-            if ($currentdate['hours'] == $ignoretime->get_hour() && $currentdate['minutes'] == $ignoretime->get_minute()) {
-                $ignore = true;
-            }
+    if (!empty($modname)) {
+        $mods = mod_manager::get_mods();
+        if (!empty($mods[$modname])) {
+            $mods[$modname]->coursemodule_standard_elements($modform, $form);
         }
+    }
+}
 
-        if (!$ignore) {
-            $currentdate['hour'] = $newtime->get_hour();
-            $currentdate['minute'] = $newtime->get_minute();
 
-            $gregoriandate = $calendartype->convert_to_gregorian(
-                $currentdate['year'],
-                $currentdate['mon'],
-                $currentdate['mday'],
-                $currentdate['hour'],
-                $currentdate['minute']);
+/**
+ * Extend course module form after the data already set.
+ *
+ * @param \moodleform_mod $modform Mod form instance.
+ * @param \MoodleQuickForm $form Form instance.
+ */
+function local_submissionrestict_coursemodule_definition_after_data(moodleform_mod $modform, MoodleQuickForm $form): void {
+    $modname = $modform->get_current()->modulename;
 
-            $newdate = make_timestamp($gregoriandate['year'],
-                $gregoriandate['month'],
-                $gregoriandate['day'],
-                $gregoriandate['hour'],
-                $gregoriandate['minute']
-            );
+    if (!empty($modname)) {
+        $mods = mod_manager::get_mods();
+        if (!empty($mods[$modname])) {
+            $mods[$modname]->coursemodule_definition_after_data($modform, $form);
+        }
+    }
+}
+
+/**
+ * Extend course module form submission.
+ *
+ * @param stdClass $moduleinfo Module info data.
+ * @param stdClass $course Course instance.
+ *
+ * @return stdClass Mutated module info data.
+ */
+function local_submissionrestict_coursemodule_edit_post_actions(stdClass $moduleinfo, stdClass $course): stdClass {
+    if (!empty($moduleinfo->modulename)) {
+        $mods = mod_manager::get_mods();
+        if (!empty($mods[$moduleinfo->modulename])) {
+            $moduleinfo = $mods[$moduleinfo->modulename]->coursemodule_edit_post_actions($moduleinfo, $course);
+        }
+    }
+    return $moduleinfo;
+}
+
+/**
+ * Extend course mod form validation.
+ *
+ * @param \moodleform_mod $modform Mod form instance.
+ * @param array $data Submitted data.
+ *
+ * @return array
+ */
+function local_submissionrestict_coursemodule_validation(moodleform_mod $modform, array $data): array {
+    $errors = [];
+
+    $cm = $modform->get_coursemodule();
+    $modname = '';
+
+    if (!empty($cm) && !empty($cm->modname)) {
+        $modname = $cm->modname;
+    } else if (!empty($modform->get_current()->modulename)) {
+        $modname = $modform->get_current()->modulename;
+    }
+
+    if (!empty($modname)) {
+        $mods = mod_manager::get_mods();
+        if (!empty($mods[$modname])) {
+            $errors = $mods[$modname]->coursemodule_validation($modform, $data);
         }
     }
 
-    return $newdate;
+    return $errors;
+}
+
+/**
+ * Hook called before we delete a course module.
+ *
+ * @param \stdClass $cm The course module record.
+ */
+function local_submissionrestict_pre_course_module_delete($cm) {
+    [$course, $cm] = get_course_and_cm_from_cmid($cm->id);
+
+    if (!empty($cm->modname)) {
+        $mods = mod_manager::get_mods();
+        if (!empty($mods[$cm->modname])) {
+            $mods[$cm->modname]->pre_course_module_delete($cm);
+        }
+    }
+}
+
+/**
+ * Hook called before we delete a course.
+ *
+ * @param object $course The Moodle course object.
+ */
+function local_submissionrestict_pre_course_delete($course) {
+    global $DB;
+
+    // Cleanup course module related data.
+    $modules = $DB->get_records('course_modules', ['course' => $course->id]);
+
+    foreach ($modules as $module) {
+        local_submissionrestict_pre_course_module_delete($module);
+    }
 }

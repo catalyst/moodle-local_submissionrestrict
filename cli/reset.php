@@ -23,11 +23,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use \local_submissionrestict\time;
+use \local_submissionrestict\helper;
+
 define('CLI_SCRIPT', true);
 
 require(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/clilib.php');
-require_once($CFG->dirroot . '/local/submissionrestict/lib.php');
 
 [$options, $unrecognized] = cli_get_params(
     [
@@ -141,17 +143,17 @@ foreach ($records as $record) {
     $needupdate = false;
     $update = new stdClass();
     $update->id = $record->id;
-    $newtime = new \local_submissionrestict\time($options['hour'], $options['minute']);
+    $newtime = new time($options['hour'], $options['minute']);
 
     if ($record->duedate > 0) {
-        if ($date = local_submissionrestict_calculate_new_time($record->duedate, $newtime, $ignore)) {
+        if ($date = helper::calculate_new_time($record->duedate, $newtime, $ignore)) {
             $update->duedate = $date;
             $needupdate = true;
         }
     }
 
     if ($record->cutoffdate > 0) {
-        if ($date = local_submissionrestict_calculate_new_time($record->cutoffdate, $newtime, $ignore)) {
+        if ($date = helper::calculate_new_time($record->cutoffdate, $newtime, $ignore)) {
             $update->cutoffdate = $date;
             $needupdate = true;
         }
