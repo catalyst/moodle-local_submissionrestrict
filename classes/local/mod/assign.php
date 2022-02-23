@@ -209,6 +209,7 @@ class assign extends mod_base {
             $overridengroup[] = $form->createElement('select', 'reason', '', $this->get_reason_options());
             $overridengr = $form->createElement('group', 'overridengr', '', $overridengroup, ['&nbsp;'], false);
             $form->insertElementBefore($overridengr, 'cutoffdate');
+            $form->addHelpButton('overridengr', 'reasons', 'local_submissionrestict');
 
             // Disable fields if a new due date is not enabled.
             $fieldenabled = self::NEW_DUEDATE_FORM_FIELD  . '[enabled]';
@@ -218,9 +219,7 @@ class assign extends mod_base {
 
             // Hide overridden time until Other option is selected.
             $fieldtime = self::NEW_DUEDATE_FORM_FIELD  . '[time]';
-            $form->hideIf('hour', $fieldtime, 'neq', datetime_limited::OTHER_VALUE);
-            $form->hideIf('minute', $fieldtime, 'neq', datetime_limited::OTHER_VALUE);
-            $form->hideIf('reason', $fieldtime, 'neq', datetime_limited::OTHER_VALUE);
+            $form->hideIf('overridengr', $fieldtime, 'neq', datetime_limited::OTHER_VALUE);
         }
 
         // We would like to apply default values from a new overridden date (option Other is selected)
@@ -252,7 +251,11 @@ class assign extends mod_base {
                     // If we can't use Other option, then replace a form element with a text.
                     $form->removeElement(self::NEW_DUEDATE_FORM_FIELD);
 
-                    $element = $form->createElement('static', 'date', get_string('duedate', 'assign'),  userdate($newdate));
+                    $date = userdate($newdate) . \html_writer::empty_tag('br')
+                        . get_string('reason', 'local_submissionrestict') . ': '
+                        . $restrictrecord->get('reason');
+
+                    $element = $form->createElement('static', 'date', get_string('duedate', 'assign'),  $date);
                     $form->insertElementBefore($element, 'cutoffdate');
                     $form->addHelpButton('date', 'duedate', 'assign');
                 }

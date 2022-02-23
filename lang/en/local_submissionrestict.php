@@ -27,6 +27,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Submission restrictions';
+$string['reasons'] = 'Variation reasons';
+$string['reasons_help'] = 'There are may be reasons to set non standard submission times.';
 $string['submissionrestict:override'] = 'Override configured submission times';
 $string['error:reasonrequired'] = 'You have to provide a reason for variation';
 $string['privacy:metadata:local_submissionrestict'] = 'Details of Submission restriction data.';
