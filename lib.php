@@ -116,3 +116,34 @@ function local_submissionrestict_coursemodule_validation(moodleform_mod $modform
     return $errors;
 }
 
+/**
+ * Hook called before we delete a course module.
+ *
+ * @param \stdClass $cm The course module record.
+ */
+function local_submissionrestict_pre_course_module_delete($cm) {
+    [$course, $cm] = get_course_and_cm_from_cmid($cm->id);
+
+    if (!empty($cm->modname)) {
+        $mods = mod_manager::get_mods();
+        if (!empty($mods[$cm->modname])) {
+            $mods[$cm->modname]->pre_course_module_delete($cm);
+        }
+    }
+}
+
+/**
+ * Hook called before we delete a course.
+ *
+ * @param object $course The Moodle course object.
+ */
+function local_submissionrestict_pre_course_delete($course) {
+    global $DB;
+
+    // Cleanup course module related data.
+    $modules = $DB->get_records('course_modules', ['course' => $course->id]);
+
+    foreach ($modules as $module) {
+        local_submissionrestict_pre_course_module_delete($module);
+    }
+}

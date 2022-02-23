@@ -177,4 +177,45 @@ class assign_test extends \advanced_testcase {
         $this->assertTrue($assign->has_override_permissions($coursecontext));
     }
 
+    /**
+     * Test delete hook for assign.
+     */
+    public function test_pre_course_module_delete() {
+        $this->resetAfterTest();
+
+        $assign = new assign();
+
+        $course = $this->getDataGenerator()->create_course();
+        $assignment1 = $this->getDataGenerator()->create_module('assign', ['course' => $course->id]);
+        $assignment2 = $this->getDataGenerator()->create_module('assign', ['course' => $course->id]);
+
+        $this->assertFalse($assign->get_restriction_record($assignment1->cmid));
+        $this->assertFalse($assign->get_restriction_record($assignment2->cmid));
+
+        $restrict1 = new restrict();
+        $restrict1->set('cmid', $assignment1->cmid);
+        $restrict1->set('newdate', time());
+        $restrict1->set('modname', $assign->get_name());
+        $restrict1->set('reason', 'Test reason');
+        $restrict1->save();
+
+        $restrict2 = new restrict();
+        $restrict2->set('cmid', $assignment2->cmid);
+        $restrict2->set('newdate', time());
+        $restrict2->set('modname', $assign->get_name());
+        $restrict2->set('reason', 'Test reason');
+        $restrict2->save();
+
+        $this->assertEquals($assignment1->cmid, $assign->get_restriction_record($assignment1->cmid)->get('cmid'));
+        $this->assertEquals($assignment2->cmid, $assign->get_restriction_record($assignment2->cmid)->get('cmid'));
+
+        course_delete_module($assignment1->cmid);
+        $this->assertFalse($assign->get_restriction_record($assignment1->cmid));
+        $this->assertEquals($assignment2->cmid, $assign->get_restriction_record($assignment2->cmid)->get('cmid'));
+
+        delete_course($course->id, false);
+        $this->assertFalse($assign->get_restriction_record($assignment1->cmid));
+        $this->assertFalse($assign->get_restriction_record($assignment2->cmid));
+    }
+
 }

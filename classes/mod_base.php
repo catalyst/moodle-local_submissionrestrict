@@ -135,6 +135,17 @@ abstract class mod_base {
     abstract public function reset_submission_dates_by_grade_item(\grade_item $gradeitem): void;
 
     /**
+     * Course module delete hook.
+     *
+     * @param \cm_info $cm Course module.
+     */
+    public function pre_course_module_delete(\cm_info $cm): void {
+        if ($record = $this->get_restriction_record($cm->id)) {
+            $record->delete();
+        }
+    }
+
+    /**
      * Check if restore reset is enabled for the given mod.
      * @return bool
      */
