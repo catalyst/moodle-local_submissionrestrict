@@ -14,24 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace local_submissionrestict\output;
+
+use plugin_renderer_base;
+
 /**
- * Define capabilities.
+ * Render.
  *
- * @package     local_submissionrestict
- * @copyright   2021 Catalyst IT
- * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    local_submissionrestict
+ * @author     Dmitrii Metelkin <dmitriim@catalyst-au.net>
+ * @copyright  Catalyst IT
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class renderer extends plugin_renderer_base {
 
-defined('MOODLE_INTERNAL') || die();
-
-$capabilities = [
-    'local/submissionrestict:override' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSECAT,
-    ],
-    'local/submissionrestict:overridereport' => [
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_COURSECAT,
-    ],
-];
+}

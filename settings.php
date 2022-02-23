@@ -40,3 +40,12 @@ if ($hassiteconfig && $ADMIN->locate('localplugins')) {
 
     $ADMIN->add('localplugins', $settings);
 }
+
+if ($hassiteconfig && $ADMIN->locate('reports')) {
+    $ADMIN->add('reports',
+        new admin_externalpage('local_submissionrestict_report',
+            new lang_string('report:title', 'local_submissionrestict'),
+            $CFG->wwwroot . '/local/submissionrestict/report.php?pagecontextid= ' . context_system::instance()->id,
+            ['local/submissionrestict:overridereport'])
+    );
+}

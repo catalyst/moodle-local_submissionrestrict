@@ -27,13 +27,24 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Submission restrictions';
-$string['reasons'] = 'Variation reasons';
-$string['reasons_help'] = 'There are may be reasons to set non standard submission times.';
-$string['submissionrestict:override'] = 'Override configured submission times';
 $string['error:reasonrequired'] = 'You have to provide a reason for variation';
 $string['privacy:metadata:local_submissionrestict'] = 'Details of Submission restriction data.';
 $string['privacy:metadata:local_submissionrestict:usermodified'] = 'ID of user who last created or modified the restrictions.';
 $string['reason'] = 'Reason for variation';
+$string['reasons'] = 'Variation reasons';
+$string['reasons_help'] = 'There are may be reasons to set non standard submission times.';
+$string['report:coursename'] = 'Unit name';
+$string['report:modname'] = 'Assignment type';
+$string['report:modulename'] = 'Assignment name';
+$string['report:date'] = 'Due date';
+$string['report:time'] = 'Overridden time';
+$string['report:reason'] = 'Reason for override';
+$string['report:category'] = 'Category';
+$string['report:heading'] = 'Submission overrides';
+$string['report:title'] = 'Submission overrides report';
+$string['report:filters'] = 'Filters';
+$string['submissionrestict:override'] = 'Override configured submission times';
+$string['submissionrestict:overridereport'] = 'Access submission override report';
 $string['settings:reasons'] = 'Reasons for overriding';
 $string['settings:reasons_desc'] = 'A list of reasons for overriding available timeslots. One reason per line.';
 $string['settings:restore'] = 'Default time after restore';
