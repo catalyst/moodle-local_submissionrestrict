@@ -129,12 +129,14 @@ function local_submissionrestict_coursemodule_validation(moodleform_mod $modform
  * @param \stdClass $cm The course module record.
  */
 function local_submissionrestict_pre_course_module_delete($cm) {
-    [$course, $cm] = get_course_and_cm_from_cmid($cm->id);
-
-    if (!empty($cm->modname)) {
-        $mods = mod_manager::get_mods();
-        if (!empty($mods[$cm->modname])) {
-            $mods[$cm->modname]->pre_course_module_delete($cm);
+    $modinfo = get_fast_modinfo($cm->course);
+    if ($modinfo && isset($modinfo->cms[$cm->id])) {
+        $cm = $modinfo->get_cm($cm->id);
+        if (!empty($cm->modname)) {
+            $mods = mod_manager::get_mods();
+            if (!empty($mods[$cm->modname])) {
+                $mods[$cm->modname]->pre_course_module_delete($cm);
+            }
         }
     }
 }
