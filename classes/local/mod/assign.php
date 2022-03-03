@@ -274,13 +274,23 @@ class assign extends mod_base {
         // default admin values. Due date may become earlier than allowsubmissionsfromdate.
         $form->setDefault('duedate', 0);
 
-        // However, if we have overridden values, that a user without permissions can't change,
-        // we would like to set it as default to be able to save later when the form is getting processed.
-        if ($cm = $modform->get_coursemodule()) {
-            if (!$this->has_override_permissions()) {
-                if ($restrictrecord = $this->get_restriction_record($cm->id)) {
-                    $form->setDefault('duedate', $restrictrecord->get('newdate'));
+        if ($this->is_updating($modform)) {
+            // However, if we have overridden values, that a user without permissions can't change,
+            // we would like to set it as default for duedate to be able to save later when the form is getting processed.
+            if ($cm = $modform->get_coursemodule()) {
+                if (!$this->has_override_permissions()) {
+                    if ($restrictrecord = $this->get_restriction_record($cm->id)) {
+                        $form->setDefault('duedate', $restrictrecord->get('newdate'));
+                    }
                 }
+            }
+        } else {
+            // Apply default global settings if creating a new activity.
+            $config = get_config('assign');
+            if (!empty($config->duedate_enabled)) {
+                $form->setDefault(self::NEW_DUEDATE_FORM_FIELD, time() + $config->duedate);
+            } else {
+                $form->setDefault(self::NEW_DUEDATE_FORM_FIELD, 0);
             }
         }
     }
@@ -396,5 +406,15 @@ class assign extends mod_base {
         }
 
         return $errors;
+    }
+
+    /**
+     * Check if the form being used for updating an existing instance.
+     * @param \moodleform_mod $modform
+     *
+     * @return bool
+     */
+    protected function is_updating(moodleform_mod $modform): bool {
+        return !empty($modform->get_coursemodule());
     }
 }
