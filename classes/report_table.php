@@ -18,6 +18,9 @@ namespace local_submissionrestict;
 
 use table_sql;
 
+defined('MOODLE_INTERNAL') || die();
+require_once($CFG->libdir . '/tablelib.php');
+
 /**
  * Report table
  *
