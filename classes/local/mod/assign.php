@@ -154,6 +154,7 @@ class assign extends mod_base {
 
             if ($needupdate) {
                 $DB->update_record($this->get_name(), $record);
+                $this->update_calendar($gradeitem->iteminstance);
             }
         }
     }
@@ -358,6 +359,7 @@ class assign extends mod_base {
         $assignrecord->id = $moduleinfo->instance;
         $assignrecord->duedate = $moduleinfo->duedate = $newdate;
         $DB->update_record('assign', $assignrecord);
+        $this->update_calendar($assignrecord->id);
 
         return $moduleinfo;
     }
@@ -417,4 +419,17 @@ class assign extends mod_base {
     protected function is_updating(moodleform_mod $modform): bool {
         return !empty($modform->get_coursemodule());
     }
+
+    /**
+     * Update calendar events for provided assignment.
+     *
+     * @param int $assignid Assignment instance id.
+     */
+    protected function update_calendar(int $assignid): void {
+        list ($course, $cm) = get_course_and_cm_from_instance($assignid, 'assign');
+        $context = \context_module::instance($cm->id);
+        $assign = new \assign($context, $cm, $course);
+        $assign->update_calendar($cm->id);
+    }
+
 }
