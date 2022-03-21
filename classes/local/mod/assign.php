@@ -378,7 +378,7 @@ class assign extends mod_base {
         }
 
         // Cover a scenario when due date is set to 0 as a new overridden due date is taking advantage.
-        if (!empty($data['allowsubmissionsfromdate']) && isset($data['newdate']['time'])) {
+        if (!empty($data['allowsubmissionsfromdate']) && isset($data[self::NEW_DUEDATE_FORM_FIELD]['time'])) {
             if (!empty($data[self::NEW_DUEDATE_FORM_FIELD]['overridden'])) {
                 $field = 'overridengr';
                 $time = new time($data['hour'], $data['minute']);
