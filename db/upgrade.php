@@ -70,5 +70,23 @@ function xmldb_local_submissionrestict_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 202111005, 'local', 'submissionrestict');
     }
 
+    if ($oldversion < 2022031800) {
+        $table = new xmldb_table('local_submissionrestict');
+
+        if ($dbman->table_exists($table)) {
+            $field = new xmldb_field('newdate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
+            if ($dbman->field_exists($table, $field)) {
+                $dbman->change_field_notnull($table, $field);
+            }
+
+            $field = new xmldb_field('reason', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL);
+            if ($dbman->field_exists($table, $field)) {
+                $dbman->change_field_notnull($table, $field);
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2022031800, 'local', 'submissionrestict');
+    }
+
     return true;
 }
