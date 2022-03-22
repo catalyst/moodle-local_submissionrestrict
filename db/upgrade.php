@@ -88,5 +88,26 @@ function xmldb_local_submissionrestict_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2022031800, 'local', 'submissionrestict');
     }
 
+    if ($oldversion < 2022032300) {
+        // Getting all assignments with missing or incorrect events where a due date is in
+        // the future (we don't really care if due date already passed as it won't give users any values).
+        $sql = "SELECT a.id
+                  FROM {assign} a
+             LEFT JOIN {event} e ON (a.id = e.instance AND e.modulename = 'assign' AND eventtype = 'due')
+                 WHERE (e.id is NULL AND a.duedate > ?)
+                    OR (a.duedate > ? AND e.timestart <> a.duedate AND e.groupid = 0 AND e.courseid <> 0)";
+
+        $assignments = $DB->get_records_sql($sql, [time(), time()]);
+
+        foreach ($assignments as $assign) {
+            list ($course, $cm) = get_course_and_cm_from_instance($assign->id, 'assign');
+            $context = \context_module::instance($cm->id);
+            $assign = new \assign($context, $cm, $course);
+            $assign->update_calendar($cm->id);
+        }
+
+        upgrade_plugin_savepoint(true, 2022032300, 'local', 'submissionrestict');
+    }
+
     return true;
 }
