@@ -70,12 +70,14 @@ class assign extends mod_base {
     /**
      * Check if new due date is overridden. AKA Other option is selected.
      *
-     * @param stdClass $moduleinfo Module info data.
+     * @param array $newdatevalue New date element values.
+     * @param array $submittedvalues Module info data.
+     *
      * @return bool
      */
-    protected function is_new_date_overridden(stdClass $moduleinfo): bool {
-        if (!empty($moduleinfo->{self::NEW_DUEDATE_FORM_FIELD}['overridden'])) {
-            return isset($moduleinfo->hour) && isset($moduleinfo->minute) && isset($moduleinfo->reason);
+    private function is_new_date_overridden(array $newdatevalue, array $submittedvalues): bool {
+        if (!empty($newdatevalue['overridden'])) {
+            return isset($submittedvalues['hour']) && isset($submittedvalues['minute']) && isset($submittedvalues['reason']);
         }
 
         return false;
@@ -271,28 +273,35 @@ class assign extends mod_base {
      * @param \MoodleQuickForm $form Form instance.
      */
     public function coursemodule_definition_after_data(moodleform_mod $modform, MoodleQuickForm $form): void {
-        // We set it to 0 here to make sure it passes a validation late when apply_admin_defaults will apply
-        // default admin values. Due date may become earlier than allowsubmissionsfromdate.
-        $form->setDefault('duedate', 0);
-
-        if ($this->is_updating($modform)) {
-            // However, if we have overridden values, that a user without permissions can't change,
-            // we would like to set it as default for duedate to be able to save later when the form is getting processed.
-            if ($cm = $modform->get_coursemodule()) {
-                if (!$this->has_override_permissions()) {
-                    if ($restrictrecord = $this->get_restriction_record($cm->id)) {
-                        $form->setDefault('duedate', $restrictrecord->get('newdate'));
-                    }
-                }
-            }
-        } else {
-            // Apply default global settings if creating a new activity.
+        // Apply default global settings if creating a new activity.
+        if (!$this->is_updating($modform)) {
             $config = get_config('assign');
             if (!empty($config->duedate_enabled)) {
                 $form->setDefault(self::NEW_DUEDATE_FORM_FIELD, time() + $config->duedate);
             } else {
                 $form->setDefault(self::NEW_DUEDATE_FORM_FIELD, 0);
             }
+        }
+
+        if ($form->isSubmitted() && $form->elementExists(self::NEW_DUEDATE_FORM_FIELD)) {
+            $element = $form->getElement(self::NEW_DUEDATE_FORM_FIELD);
+            $submittedvalue = $form->getSubmitValue(self::NEW_DUEDATE_FORM_FIELD);
+            $exportedvalue = $element->exportValue($submittedvalue);
+            $values = $form->getSubmitValues();
+
+            $newduedate = $form->getSubmitValue('duedate');
+
+            if (empty($exportedvalue)) {
+                $newduedate = 0;
+            } else if ($this->is_new_date_overridden($exportedvalue, $values)) {
+                $newduedate = helper::calculate_new_time($exportedvalue['time'], new time($values['hour'], $values['minute']));
+                $newduedate = is_null($newduedate) ? $exportedvalue['time'] : $newduedate;
+            } else if (!empty($exportedvalue['time'])) {
+                $newduedate = $exportedvalue['time'];
+            }
+
+            $values['duedate'] = $newduedate;
+            $form->updateSubmission($values, $form->_submitFiles);
         }
     }
 
@@ -305,61 +314,32 @@ class assign extends mod_base {
      * @return stdClass Mutated module info data.
      */
     public function coursemodule_edit_post_actions(stdClass $moduleinfo, stdClass $course): stdClass {
-        global $DB;
-
         $restrictrecord = $this->get_restriction_record($moduleinfo->coursemodule);
-        $fieldname = self::NEW_DUEDATE_FORM_FIELD;
 
-        if (!empty($moduleinfo->{$fieldname})) {
-            if ($this->is_new_date_overridden($moduleinfo)) {
-                // A new due date is set to Other option. Some magic needs to be done to process
-                // extra hour and minute field and build a new time.
-
-                $time = new time($moduleinfo->hour, $moduleinfo->minute);
-                $newdate = helper::calculate_new_time($moduleinfo->{$fieldname}['time'], $time);
-
-                if (is_null($newdate)) {
-                    $newdate = $moduleinfo->{$fieldname}['time'];
-                }
-
+        if (!empty($moduleinfo->{self::NEW_DUEDATE_FORM_FIELD})) {
+            if ($this->is_new_date_overridden($moduleinfo->{self::NEW_DUEDATE_FORM_FIELD}, (array)$moduleinfo)) {
                 if ($restrictrecord) {
-                    $restrictrecord->set('newdate', $newdate);
+                    $restrictrecord->set('newdate', $moduleinfo->duedate);
                 } else {
                     $restrictrecord = new restrict();
                     $restrictrecord->set('cmid', $moduleinfo->coursemodule);
-                    $restrictrecord->set('newdate', $newdate);
+                    $restrictrecord->set('newdate', $moduleinfo->duedate);
                     $restrictrecord->set('modname', $this->get_name());
                 }
                 $restrictrecord->set('reason', $moduleinfo->reason);
                 $restrictrecord->save();
 
             } else {
-                // A new due date is set to one of the standard option.
-                // We can use time value and delete overridden value if it exists.
-                $newdate = $moduleinfo->{$fieldname}['time'];
+                // A new due date is set to one of the standard option. We need to clean up and delete overridden record if exists.
                 if ($restrictrecord) {
                     $restrictrecord->delete();
                 }
             }
-
         } else {
-            if (!isset($moduleinfo->{$fieldname})) {
-                // Normal due date field is being used.
-                $newdate = $moduleinfo->duedate;
-            } else {
-                // A custom due date field is being used, but it's disabled.
-                $newdate = 0;
-                if ($restrictrecord) {
-                    $restrictrecord->delete();
-                }
+            if ($restrictrecord && isset($moduleinfo->{self::NEW_DUEDATE_FORM_FIELD})) {
+                $restrictrecord->delete();
             }
         }
-
-        $assignrecord = new stdClass();
-        $assignrecord->id = $moduleinfo->instance;
-        $assignrecord->duedate = $moduleinfo->duedate = $newdate;
-        $DB->update_record('assign', $assignrecord);
-        $this->update_calendar($assignrecord->id);
 
         return $moduleinfo;
     }
