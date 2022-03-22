@@ -163,6 +163,12 @@ foreach ($records as $record) {
         $updated ++;
         if ($options['run']) {
             $DB->update_record('assign', $update);
+
+            list ($course, $cm) = get_course_and_cm_from_instance($record->id, 'assign');
+            $context = \context_module::instance($cm->id);
+            $assign = new \assign($context, $cm, $course);
+            $assign->update_calendar($cm->id);
+
             cli_writeln("Assignment $record->name with ID $record->id updated");
         } else {
             cli_writeln("Assignment $record->name with ID $record->id will be updated");
