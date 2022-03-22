@@ -33,6 +33,7 @@ $string['privacy:metadata:local_submissionrestict:usermodified'] = 'ID of user w
 $string['reason'] = 'Choose reason for variation...';
 $string['reasons'] = 'Variation reasons';
 $string['reasons_help'] = 'There are may be reasons to set non standard submission times.';
+$string['reasonforvariation'] = 'Reason for variation';
 $string['report:coursename'] = 'Unit name';
 $string['report:modname'] = 'Assignment type';
 $string['report:modulename'] = 'Assignment name';

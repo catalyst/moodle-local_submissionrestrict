@@ -255,7 +255,7 @@ class assign extends mod_base {
                     $form->removeElement(self::NEW_DUEDATE_FORM_FIELD);
 
                     $date = userdate($newdate) . \html_writer::empty_tag('br')
-                        . get_string('reason', 'local_submissionrestict') . ': '
+                        . get_string('reasonforvariation', 'local_submissionrestict') . ': '
                         . $restrictrecord->get('reason');
 
                     $element = $form->createElement('static', 'date', get_string('duedate', 'assign'),  $date);
