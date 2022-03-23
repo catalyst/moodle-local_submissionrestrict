@@ -101,6 +101,15 @@ class assign_test extends \advanced_testcase {
         $assignactivity1 = $this->getDataGenerator()->create_module('assign', $record);
         $assignactivity2 = $this->getDataGenerator()->create_module('assign', ['course' => $course->id]);
 
+        $event1 = $DB->get_record('event', ['modulename' => 'assign', 'instance' => $assignactivity1->id]);
+        $event2 = $DB->get_record('event', ['modulename' => 'assign', 'instance' => $assignactivity2->id]);
+
+        $this->assertNotEmpty($event1);
+        $this->assertEquals($assignactivity1->duedate, $event1->timestart);
+        $this->assertEquals('due', $event1->eventtype);
+
+        $this->assertEmpty($event2);
+
         $gradeitem1 = \grade_item::fetch(['courseid' => $course->id, 'iteminstance' => $assignactivity1->id]);
         $gradeitem2 = \grade_item::fetch(['courseid' => $course->id, 'iteminstance' => $assignactivity2->id]);
 
@@ -119,6 +128,14 @@ class assign_test extends \advanced_testcase {
         // Should not reset as submission limit is not enabled.
         $this->assertEquals(0, $assign2record->duedate);
         $this->assertEquals(0, $assign2record->cutoffdate);
+
+        $event1 = $DB->get_record('event', ['modulename' => 'assign', 'instance' => $assignactivity1->id]);
+        $event2 = $DB->get_record('event', ['modulename' => 'assign', 'instance' => $assignactivity2->id]);
+
+        $this->assertNotEmpty($event1);
+        $this->assertEquals($assign1record->duedate, $event1->timestart);
+        $this->assertEquals('due', $event1->eventtype);
+        $this->assertEmpty($event2);
     }
 
     /**
