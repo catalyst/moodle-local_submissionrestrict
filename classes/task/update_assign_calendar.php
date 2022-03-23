@@ -18,6 +18,7 @@ namespace local_submissionrestict\task;
 
 use core\task\adhoc_task;
 
+
 /**
  * Ahdoc to update assignment calendar.
  *
@@ -32,6 +33,10 @@ class update_assign_calendar extends adhoc_task {
      * Execute the task.
      */
     public function execute() {
+        global $CFG;
+
+        require_once($CFG->dirroot . '/mod/assign/locallib.php');
+
         $assignid = (int)$this->get_custom_data();
 
         list ($course, $cm) = get_course_and_cm_from_instance($assignid, 'assign');
