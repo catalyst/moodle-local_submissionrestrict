@@ -88,7 +88,7 @@ function xmldb_local_submissionrestict_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2022031800, 'local', 'submissionrestict');
     }
 
-    if ($oldversion < 2022032300) {
+    if ($oldversion < 2022032303) {
         // Getting all assignments with missing or incorrect events where a due date is in
         // the future (we don't really care if due date already passed as it won't give users any values).
         $sql = "SELECT a.id
@@ -100,13 +100,15 @@ function xmldb_local_submissionrestict_upgrade($oldversion): bool {
         $assignments = $DB->get_records_sql($sql, [time(), time()]);
 
         foreach ($assignments as $assign) {
-            list ($course, $cm) = get_course_and_cm_from_instance($assign->id, 'assign');
-            $context = \context_module::instance($cm->id);
-            $assign = new \assign($context, $cm, $course);
-            $assign->update_calendar($cm->id);
+            // Generate an adhoc task to unlock previews that were incorrectly locked.
+            $record = new \stdClass();
+            $record->classname = '\local_submissionrestict\task\update_assign_calendar';
+            $record->customdata = json_encode($assign->id);
+            $record->nextruntime = time() - 1;
+            $DB->insert_record('task_adhoc', $record);
         }
 
-        upgrade_plugin_savepoint(true, 2022032300, 'local', 'submissionrestict');
+        upgrade_plugin_savepoint(true, 2022032303, 'local', 'submissionrestict');
     }
 
     return true;
