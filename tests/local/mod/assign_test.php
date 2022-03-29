@@ -200,6 +200,9 @@ class assign_test extends \advanced_testcase {
     public function test_pre_course_module_delete() {
         $this->resetAfterTest();
 
+        set_config('assign_timeslots', '9:30', 'local_submissionrestict');
+        set_config('assign_reasons', 'Test reason', 'local_submissionrestict');
+
         $assign = new assign();
 
         $course = $this->getDataGenerator()->create_course();
@@ -233,6 +236,22 @@ class assign_test extends \advanced_testcase {
         delete_course($course->id, false);
         $this->assertFalse($assign->get_restriction_record($assignment1->cmid));
         $this->assertFalse($assign->get_restriction_record($assignment2->cmid));
+    }
+
+    /**
+     * Test if assign extension is functional.
+     */
+    public function test_is_functional() {
+        $this->resetAfterTest(true);
+
+        $assign = new assign();
+
+        $this->assertFalse($assign->is_functional());
+
+        set_config('assign_timeslots', '9:30', 'local_submissionrestict');
+        set_config('assign_reasons', 'Test reason', 'local_submissionrestict');
+
+        $this->assertTrue($assign->is_functional());
     }
 
 }

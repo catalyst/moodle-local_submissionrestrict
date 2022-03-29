@@ -69,4 +69,21 @@ class mod_manager {
         return self::$mods;
     }
 
+    /**
+     * Get an array listing all functional mods.
+     *
+     * @return mod_base[]
+     */
+    public static function get_functional_mods(): array {
+        $functionalmods = [];
+
+        foreach (self::get_mods() as $classname => $mod) {
+            if ($mod->is_functional()) {
+                $functionalmods[$classname] = $mod;
+            }
+        }
+
+        return $functionalmods;
+    }
+
 }

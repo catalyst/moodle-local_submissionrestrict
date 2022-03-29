@@ -412,4 +412,20 @@ class assign extends mod_base {
         $assign->update_calendar($cm->id);
     }
 
+    /**
+     * Check if the mod is functional.
+     * @return bool
+     */
+    public function is_functional(): bool {
+        if (empty($this->get_available_time_slots())) {
+            return false;
+        }
+
+        if (count($this->get_reason_options()) <= 1) {
+            return false;
+
+        }
+        return true;
+    }
+
 }

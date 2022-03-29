@@ -190,4 +190,12 @@ abstract class mod_base {
         return has_capability('local/submissionrestict:override', $context);
     }
 
+    /**
+     * Check if the mod is functional.
+     * @return bool
+     */
+    public function is_functional(): bool {
+        return true;
+    }
+
 }
