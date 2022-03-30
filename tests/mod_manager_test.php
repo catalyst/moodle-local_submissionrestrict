@@ -37,4 +37,22 @@ class mod_manager_test extends \advanced_testcase {
         $this->assertInstanceOf(assign::class, $mods['assign']);
     }
 
+    /**
+     * Test get list of functional mods.
+     */
+    public function test_get_functional_mods() {
+        $this->resetAfterTest(true);
+
+        $mods = mod_manager::get_functional_mods();
+        $this->assertEmpty($mods);
+
+        set_config('assign_timeslots', '9:30', 'local_submissionrestict');
+        set_config('assign_reasons', 'Test reason', 'local_submissionrestict');
+
+        $mods = mod_manager::get_functional_mods();
+
+        $this->assertArrayHasKey('assign', $mods);
+        $this->assertInstanceOf(assign::class, $mods['assign']);
+    }
+
 }

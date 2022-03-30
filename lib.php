@@ -43,7 +43,7 @@ function local_submissionrestict_coursemodule_standard_elements(moodleform_mod $
     }
 
     if (!empty($modname)) {
-        $mods = mod_manager::get_mods();
+        $mods = mod_manager::get_functional_mods();
         if (!empty($mods[$modname])) {
             $mods[$modname]->coursemodule_standard_elements($modform, $form);
         }
@@ -68,7 +68,7 @@ function local_submissionrestict_coursemodule_definition_after_data(moodleform_m
     }
 
     if (!empty($modname)) {
-        $mods = mod_manager::get_mods();
+        $mods = mod_manager::get_functional_mods();
         if (!empty($mods[$modname])) {
             $mods[$modname]->coursemodule_definition_after_data($modform, $form);
         }
@@ -85,7 +85,7 @@ function local_submissionrestict_coursemodule_definition_after_data(moodleform_m
  */
 function local_submissionrestict_coursemodule_edit_post_actions(stdClass $moduleinfo, stdClass $course): stdClass {
     if (!empty($moduleinfo->modulename)) {
-        $mods = mod_manager::get_mods();
+        $mods = mod_manager::get_functional_mods();
         if (!empty($mods[$moduleinfo->modulename])) {
             $moduleinfo = $mods[$moduleinfo->modulename]->coursemodule_edit_post_actions($moduleinfo, $course);
         }
@@ -114,7 +114,7 @@ function local_submissionrestict_coursemodule_validation(moodleform_mod $modform
     }
 
     if (!empty($modname)) {
-        $mods = mod_manager::get_mods();
+        $mods = mod_manager::get_functional_mods();
         if (!empty($mods[$modname])) {
             $errors = $mods[$modname]->coursemodule_validation($modform, $data);
         }
@@ -133,7 +133,7 @@ function local_submissionrestict_pre_course_module_delete($cm) {
     if ($modinfo && isset($modinfo->cms[$cm->id])) {
         $cm = $modinfo->get_cm($cm->id);
         if (!empty($cm->modname)) {
-            $mods = mod_manager::get_mods();
+            $mods = mod_manager::get_functional_mods();
             if (!empty($mods[$cm->modname])) {
                 $mods[$cm->modname]->pre_course_module_delete($cm);
             }
