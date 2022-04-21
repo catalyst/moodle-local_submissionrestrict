@@ -17,14 +17,14 @@
 /**
  * CLI script for resetting submission times.
  *
- * @package    local_submissionrestict
+ * @package    local_submissionrestrict
  * @copyright  2021 Catalyst IT
  * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use \local_submissionrestict\time;
-use \local_submissionrestict\helper;
+use \local_submissionrestrict\time;
+use \local_submissionrestrict\helper;
 
 define('CLI_SCRIPT', true);
 
@@ -106,7 +106,7 @@ if (!empty($options['ignore'])) {
     foreach ($timestrings as $timestring) {
         $parts = explode(':', $timestring);
         if (count($parts) === 2) {
-            $ignore[] = new \local_submissionrestict\time($parts[0], $parts[1]);
+            $ignore[] = new \local_submissionrestrict\time($parts[0], $parts[1]);
         }
     }
 }

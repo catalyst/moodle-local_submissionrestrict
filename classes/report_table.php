@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict;
+namespace local_submissionrestrict;
 
 use table_sql;
 
@@ -24,7 +24,7 @@ require_once($CFG->libdir . '/tablelib.php');
 /**
  * Report table
  *
- * @package    local_submissionrestict
+ * @package    local_submissionrestrict
  * @author     Dmitrii Metelkin <dmitriim@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -83,13 +83,13 @@ class report_table extends table_sql {
      */
     protected function get_headers() : array {
         return [
-            get_string('report:coursename', 'local_submissionrestict'),
-            get_string('report:modulename', 'local_submissionrestict'),
-            get_string('report:modname', 'local_submissionrestict'),
-            get_string('report:date', 'local_submissionrestict'),
-            get_string('report:time', 'local_submissionrestict'),
-            get_string('report:reason', 'local_submissionrestict'),
-            get_string('report:category', 'local_submissionrestict'),
+            get_string('report:coursename', 'local_submissionrestrict'),
+            get_string('report:modulename', 'local_submissionrestrict'),
+            get_string('report:modname', 'local_submissionrestrict'),
+            get_string('report:date', 'local_submissionrestrict'),
+            get_string('report:time', 'local_submissionrestrict'),
+            get_string('report:reason', 'local_submissionrestrict'),
+            get_string('report:category', 'local_submissionrestrict'),
         ];
     }
 
@@ -141,7 +141,7 @@ class report_table extends table_sql {
         list($where, $params) = $this->get_filters_sql_and_params();
 
         $sql = "SELECT $select
-                  FROM {local_submissionrestict} ls
+                  FROM {local_submissionrestrict} ls
              LEFT JOIN {course_modules} cm ON ls.cmid = cm.id
              LEFT JOIN {course} c ON cm.course = c.id
                  WHERE $where";

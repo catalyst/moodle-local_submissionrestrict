@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict\privacy;
+namespace local_submissionrestrict\privacy;
 
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
@@ -25,9 +25,9 @@ use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
 /**
- * Privacy Subsystem implementation for local_submissionrestict.
+ * Privacy Subsystem implementation for local_submissionrestrict.
  *
- * @package     local_submissionrestict
+ * @package     local_submissionrestrict
  * @copyright   2022 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -45,11 +45,11 @@ class provider implements
      */
     public static function get_metadata(collection $collection): collection {
         $collection->add_database_table(
-            'local_submissionrestict',
+            'local_submissionrestrict',
             [
-                'usermodified' => 'privacy:metadata:local_submissionrestict:usermodified',
+                'usermodified' => 'privacy:metadata:local_submissionrestrict:usermodified',
             ],
-            'privacy:metadata:local_submissionrestict'
+            'privacy:metadata:local_submissionrestrict'
         );
 
         return $collection;
@@ -72,7 +72,7 @@ class provider implements
         $sql = "SELECT c.id
                   FROM {context} c
             INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
-            INNER JOIN {local_submissionrestict} ls ON ls.cmid = cm.id
+            INNER JOIN {local_submissionrestrict} ls ON ls.cmid = cm.id
                  WHERE ls.usermodified = :userid";
 
         $contextlist->add_from_sql($sql, $params);
@@ -101,7 +101,7 @@ class provider implements
         $params['usermodified'] = $contextlist->get_user()->id;
 
         $sql = "SELECT c.id, ls.usermodified, ls.timecreated, ls.timemodified
-                  FROM {local_submissionrestict} ls
+                  FROM {local_submissionrestrict} ls
             INNER JOIN {course_modules} cm ON cm.id = ls.cmid
             INNER JOIN {context} c ON cm.id = c.instanceid
                  WHERE usermodified = :usermodified AND c.id " . $insql;
@@ -113,8 +113,8 @@ class provider implements
             // Data export is organised in: {Context}/{Plugin Name}/{Table name}/{index}/data.json.
             $index++;
             $subcontext = [
-                get_string('pluginname', 'local_submissionrestict'),
-                'local_submissionrestict',
+                get_string('pluginname', 'local_submissionrestrict'),
+                'local_submissionrestrict',
                 $index
             ];
 
@@ -143,7 +143,7 @@ class provider implements
         }
 
         // We don't want to delete records. Just anonymise the users.
-        $DB->set_field('local_submissionrestict', 'usermodified', 0, ['cmid' => $context->instanceid]);
+        $DB->set_field('local_submissionrestrict', 'usermodified', 0, ['cmid' => $context->instanceid]);
     }
 
     /**
@@ -175,7 +175,7 @@ class provider implements
         $params['usermodified'] = $contextlist->get_user()->id;
 
         // We don't want to delete records. Just anonymise the users.
-        $DB->set_field_select('local_submissionrestict', 'usermodified', 0, "usermodified = :usermodified AND $insql", $params);
+        $DB->set_field_select('local_submissionrestrict', 'usermodified', 0, "usermodified = :usermodified AND $insql", $params);
     }
 
     /**
@@ -191,7 +191,7 @@ class provider implements
         }
 
         $sql = "SELECT usermodified AS userid
-                  FROM {local_submissionrestict}
+                  FROM {local_submissionrestrict}
                  WHERE cmid = :cmid";
 
         $userlist->add_from_sql('userid', $sql, ['cmid' => $context->instanceid]);
@@ -209,7 +209,7 @@ class provider implements
         list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
         // We don't want to delete records. Just anonymise the users.
-        $DB->set_field_select('local_submissionrestict', 'usermodified', 0, "usermodified {$insql}", $inparams);
+        $DB->set_field_select('local_submissionrestrict', 'usermodified', 0, "usermodified {$insql}", $inparams);
     }
 
 }

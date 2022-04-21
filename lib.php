@@ -17,13 +17,13 @@
 /**
  * Lib functions.
  *
- * @package    local_submissionrestict
+ * @package    local_submissionrestrict
  * @author     Dmitrii Metelkin <dmitriim@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_submissionrestict\mod_manager;
+use local_submissionrestrict\mod_manager;
 
 /**
  * Extend course module form.
@@ -31,7 +31,7 @@ use local_submissionrestict\mod_manager;
  * @param \moodleform_mod $modform Mod form instance.
  * @param \MoodleQuickForm $form Form instance.
  */
-function local_submissionrestict_coursemodule_standard_elements(moodleform_mod $modform, MoodleQuickForm $form): void {
+function local_submissionrestrict_coursemodule_standard_elements(moodleform_mod $modform, MoodleQuickForm $form): void {
     $cm = $modform->get_coursemodule();
     $modname = '';
 
@@ -57,7 +57,7 @@ function local_submissionrestict_coursemodule_standard_elements(moodleform_mod $
  * @param \moodleform_mod $modform Mod form instance.
  * @param \MoodleQuickForm $form Form instance.
  */
-function local_submissionrestict_coursemodule_definition_after_data(moodleform_mod $modform, MoodleQuickForm $form): void {
+function local_submissionrestrict_coursemodule_definition_after_data(moodleform_mod $modform, MoodleQuickForm $form): void {
     $cm = $modform->get_coursemodule();
     $modname = '';
 
@@ -83,7 +83,7 @@ function local_submissionrestict_coursemodule_definition_after_data(moodleform_m
  *
  * @return stdClass Mutated module info data.
  */
-function local_submissionrestict_coursemodule_edit_post_actions(stdClass $moduleinfo, stdClass $course): stdClass {
+function local_submissionrestrict_coursemodule_edit_post_actions(stdClass $moduleinfo, stdClass $course): stdClass {
     if (!empty($moduleinfo->modulename)) {
         $mods = mod_manager::get_functional_mods();
         if (!empty($mods[$moduleinfo->modulename])) {
@@ -101,7 +101,7 @@ function local_submissionrestict_coursemodule_edit_post_actions(stdClass $module
  *
  * @return array
  */
-function local_submissionrestict_coursemodule_validation(moodleform_mod $modform, array $data): array {
+function local_submissionrestrict_coursemodule_validation(moodleform_mod $modform, array $data): array {
     $errors = [];
 
     $cm = $modform->get_coursemodule();
@@ -128,7 +128,7 @@ function local_submissionrestict_coursemodule_validation(moodleform_mod $modform
  *
  * @param \stdClass $cm The course module record.
  */
-function local_submissionrestict_pre_course_module_delete($cm) {
+function local_submissionrestrict_pre_course_module_delete($cm) {
     $modinfo = get_fast_modinfo($cm->course);
     if ($modinfo && isset($modinfo->cms[$cm->id])) {
         $cm = $modinfo->get_cm($cm->id);
@@ -146,14 +146,14 @@ function local_submissionrestict_pre_course_module_delete($cm) {
  *
  * @param object $course The Moodle course object.
  */
-function local_submissionrestict_pre_course_delete($course) {
+function local_submissionrestrict_pre_course_delete($course) {
     global $DB;
 
     // Cleanup course module related data.
     $modules = $DB->get_records('course_modules', ['course' => $course->id]);
 
     foreach ($modules as $module) {
-        local_submissionrestict_pre_course_module_delete($module);
+        local_submissionrestrict_pre_course_module_delete($module);
     }
 }
 
@@ -163,12 +163,12 @@ function local_submissionrestict_pre_course_delete($course) {
  * @param \navigation_node $nav Navigation node.
  * @param \context_coursecat $context Category context.
  */
-function local_submissionrestict_extend_navigation_category_settings(navigation_node $nav, context_coursecat $context) {
+function local_submissionrestrict_extend_navigation_category_settings(navigation_node $nav, context_coursecat $context) {
 
     // Report link.
-    if (has_capability('local/submissionrestict:overridereport', $context)) {
-        $title = get_string('report:title', 'local_submissionrestict');
-        $url = new moodle_url("/local/submissionrestict/report.php",
+    if (has_capability('local/submissionrestrict:overridereport', $context)) {
+        $title = get_string('report:title', 'local_submissionrestrict');
+        $url = new moodle_url("/local/submissionrestrict/report.php",
             ['category' => $context->instanceid, 'pagecontextid' => $context->id]
         );
 

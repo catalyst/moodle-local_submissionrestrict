@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict;
+namespace local_submissionrestrict;
 
 use admin_settingpage;
 use admin_setting_heading;
@@ -27,7 +27,7 @@ use stdClass;
 /**
  * Base mod restriction class.
  *
- * @package     local_submissionrestict
+ * @package     local_submissionrestrict
  * @copyright   2021 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -59,23 +59,23 @@ abstract class mod_base {
      */
     final public function add_settings(admin_settingpage $settings): void {
         $settings->add(new admin_setting_heading(
-            "local_submissionrestict/{$this->build_config_name('header')}",
+            "local_submissionrestrict/{$this->build_config_name('header')}",
             ucfirst($this->get_name()),
             '')
         );
 
         $settings->add(new admin_setting_configcheckbox(
-            "local_submissionrestict/{$this->build_config_name('restore_enabled')}",
-            get_string('settings:restore_enabled', 'local_submissionrestict'),
-            get_string('settings:restore_enabled_desc', 'local_submissionrestict'),
+            "local_submissionrestrict/{$this->build_config_name('restore_enabled')}",
+            get_string('settings:restore_enabled', 'local_submissionrestrict'),
+            get_string('settings:restore_enabled_desc', 'local_submissionrestrict'),
             0)
         );
 
         $settings->add(new admin_setting_configtime(
-            "local_submissionrestict/{$this->build_config_name('restore_hour')}",
+            "local_submissionrestrict/{$this->build_config_name('restore_hour')}",
             "{$this->build_config_name('restore_minute')}",
-            get_string('settings:restore', 'local_submissionrestict'),
-            get_string('settings:restore_desc', 'local_submissionrestict'),
+            get_string('settings:restore', 'local_submissionrestrict'),
+            get_string('settings:restore_desc', 'local_submissionrestrict'),
             ['h' => 0, 'm' => 0])
         );
 
@@ -150,17 +150,17 @@ abstract class mod_base {
      * @return bool
      */
     final public function is_restore_reset_enabled(): bool {
-        return (bool)get_config('local_submissionrestict', $this->build_config_name('restore_enabled'));
+        return (bool)get_config('local_submissionrestrict', $this->build_config_name('restore_enabled'));
     }
 
     /**
      * Get a new time to force restored assignemnts to.
-     * @return \local_submissionrestict\time
+     * @return \local_submissionrestrict\time
      */
     final public function get_restore_time(): time {
         return new time(
-            (int)get_config('local_submissionrestict', $this->build_config_name('restore_hour')),
-            (int)get_config('local_submissionrestict', $this->build_config_name('restore_minute'))
+            (int)get_config('local_submissionrestrict', $this->build_config_name('restore_hour')),
+            (int)get_config('local_submissionrestrict', $this->build_config_name('restore_minute'))
         );
     }
 
@@ -168,7 +168,7 @@ abstract class mod_base {
      * Get restriction record by cmid.
      *
      * @param int $cmid Course module ID.
-     * @return false|\local_submissionrestict\restrict
+     * @return false|\local_submissionrestrict\restrict
      */
     public function get_restriction_record(int $cmid) {
         return restrict::get_record(['cmid' => $cmid]);
@@ -187,7 +187,7 @@ abstract class mod_base {
             $context = \context_course::instance($COURSE->id);
         }
 
-        return has_capability('local/submissionrestict:override', $context);
+        return has_capability('local/submissionrestrict:override', $context);
     }
 
     /**

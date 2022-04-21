@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict\output;
+namespace local_submissionrestrict\output;
 
 use plugin_renderer_base;
 
 /**
  * Render.
  *
- * @package    local_submissionrestict
+ * @package    local_submissionrestrict
  * @author     Dmitrii Metelkin <dmitriim@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

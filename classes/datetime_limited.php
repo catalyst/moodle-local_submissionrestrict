@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict;
+namespace local_submissionrestrict;
 
 use MoodleQuickForm_group;
 
@@ -29,7 +29,7 @@ require_once($CFG->libdir . '/formslib.php');
  *
  * Class for a group of elements used to input a date and time.
  *
- * @package   local_submissionrestict
+ * @package   local_submissionrestrict
  * @author    Dmitrii Metelkin <dmitriim@catalyst-au.net>
  * @author    2006 Jamie Pratt <me@jamiep.org>
  * @copyright Catalyst IT

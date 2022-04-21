@@ -17,26 +17,26 @@
 /**
  * Upgrade hooks.
  *
- * @package     local_submissionrestict
+ * @package     local_submissionrestrict
  * @copyright   2022 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**
- * Function to upgrade local_submissionrestict.
+ * Function to upgrade local_submissionrestrict.
  *
  * @param int $oldversion the version we are upgrading from
  * @return bool result
  */
-function xmldb_local_submissionrestict_upgrade($oldversion): bool {
+function xmldb_local_submissionrestrict_upgrade($oldversion): bool {
     global $DB;
 
     $dbman = $DB->get_manager();
 
     if ($oldversion < 202111003) {
 
-        $table = new xmldb_table('local_submissionrestict');
+        $table = new xmldb_table('local_submissionrestrict');
 
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
@@ -54,11 +54,11 @@ function xmldb_local_submissionrestict_upgrade($oldversion): bool {
             $dbman->create_table($table);
         }
 
-        upgrade_plugin_savepoint(true, 202111003, 'local', 'submissionrestict');
+        upgrade_plugin_savepoint(true, 202111003, 'local', 'submissionrestrict');
     }
 
     if ($oldversion < 202111005) {
-        $table = new xmldb_table('local_submissionrestict');
+        $table = new xmldb_table('local_submissionrestrict');
 
         if ($dbman->table_exists($table)) {
             $field = new xmldb_field('mod', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL);
@@ -67,11 +67,11 @@ function xmldb_local_submissionrestict_upgrade($oldversion): bool {
             }
         }
 
-        upgrade_plugin_savepoint(true, 202111005, 'local', 'submissionrestict');
+        upgrade_plugin_savepoint(true, 202111005, 'local', 'submissionrestrict');
     }
 
     if ($oldversion < 2022031800) {
-        $table = new xmldb_table('local_submissionrestict');
+        $table = new xmldb_table('local_submissionrestrict');
 
         if ($dbman->table_exists($table)) {
             $field = new xmldb_field('newdate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
@@ -85,7 +85,7 @@ function xmldb_local_submissionrestict_upgrade($oldversion): bool {
             }
         }
 
-        upgrade_plugin_savepoint(true, 2022031800, 'local', 'submissionrestict');
+        upgrade_plugin_savepoint(true, 2022031800, 'local', 'submissionrestrict');
     }
 
     if ($oldversion < 2022032303) {
@@ -102,13 +102,13 @@ function xmldb_local_submissionrestict_upgrade($oldversion): bool {
         foreach ($assignments as $assign) {
             // Generate an adhoc task to unlock previews that were incorrectly locked.
             $record = new \stdClass();
-            $record->classname = '\local_submissionrestict\task\update_assign_calendar';
+            $record->classname = '\local_submissionrestrict\task\update_assign_calendar';
             $record->customdata = json_encode($assign->id);
             $record->nextruntime = time() - 1;
             $DB->insert_record('task_adhoc', $record);
         }
 
-        upgrade_plugin_savepoint(true, 2022032303, 'local', 'submissionrestict');
+        upgrade_plugin_savepoint(true, 2022032303, 'local', 'submissionrestrict');
     }
 
     return true;

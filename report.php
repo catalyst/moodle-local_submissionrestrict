@@ -17,13 +17,13 @@
 /**
  * Report page.
  *
- * @package     local_submissionrestict
+ * @package     local_submissionrestrict
  * @copyright   2021 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_submissionrestict\report_table;
+use local_submissionrestrict\report_table;
 
 require_once('../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
@@ -40,9 +40,9 @@ $defaultcategoryid = $category;
 $category = core_course_category::get($defaultcategoryid);
 
 require_login();
-require_capability('local/submissionrestict:overridereport', $context);
+require_capability('local/submissionrestrict:overridereport', $context);
 
-$baseurl = new moodle_url('/local/submissionrestict/report.php', [
+$baseurl = new moodle_url('/local/submissionrestrict/report.php', [
     'pagecontextid' => $context->id
 ]);
 
@@ -53,7 +53,7 @@ $filters = [
     'category' => $defaultcategoryid,
 ];
 
-$mform = new \local_submissionrestict\report_form($baseurl->out(false), ['categoryid' => $defaultcategoryid]);
+$mform = new \local_submissionrestrict\report_form($baseurl->out(false), ['categoryid' => $defaultcategoryid]);
 
 if ($data = $mform->get_data()) {
     $filters['category'] = $data->category;
@@ -65,18 +65,18 @@ foreach ($filters as $name => $value) {
     $baseurl->param($name, $value);
 }
 
-$table = new report_table('local_submissionrestict_report', $filters, $page, $perpage);
-$table->is_downloading($download, 'submission_overrides_report', get_string('report:title', 'local_submissionrestict'));
-$output = $PAGE->get_renderer('local_submissionrestict');
+$table = new report_table('local_submissionrestrict_report', $filters, $page, $perpage);
+$table->is_downloading($download, 'submission_overrides_report', get_string('report:title', 'local_submissionrestrict'));
+$output = $PAGE->get_renderer('local_submissionrestrict');
 
 if (!$table->is_downloading()) {
-    $PAGE->navbar->add(get_string('report:title', 'local_submissionrestict'));
+    $PAGE->navbar->add(get_string('report:title', 'local_submissionrestrict'));
     $PAGE->set_pagelayout('report');
-    $PAGE->set_title(get_string('report:title', 'local_submissionrestict'));
-    $PAGE->set_heading(get_string('report:title', 'local_submissionrestict'));
+    $PAGE->set_title(get_string('report:title', 'local_submissionrestrict'));
+    $PAGE->set_heading(get_string('report:title', 'local_submissionrestrict'));
 
     echo $output->header();
-    echo $output->heading(get_string('report:title', 'local_submissionrestict'));
+    echo $output->heading(get_string('report:title', 'local_submissionrestrict'));
     echo $mform->render();
 }
 

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict\task;
+namespace local_submissionrestrict\task;
 
 use core\task\adhoc_task;
 
@@ -22,7 +22,7 @@ use core\task\adhoc_task;
 /**
  * Ahdoc to update assignment calendar.
  *
- * @package    local_submissionrestict
+ * @package    local_submissionrestrict
  * @author     Dmitrii Metelkin <dmitriim@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

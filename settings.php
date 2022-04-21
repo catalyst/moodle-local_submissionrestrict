@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Settings for local_submissionrestict plugin.
+ * Settings for local_submissionrestrict plugin.
  *
- * @package     local_submissionrestict
+ * @package     local_submissionrestrict
  * @copyright   2022 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,13 +25,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-use local_submissionrestict\mod_manager;
+use local_submissionrestrict\mod_manager;
 
 if ($hassiteconfig && $ADMIN->locate('localplugins')) {
 
     $settings = new admin_settingpage(
-        'local_submissionrestict_settings',
-        get_string('pluginname', 'local_submissionrestict')
+        'local_submissionrestrict_settings',
+        get_string('pluginname', 'local_submissionrestrict')
     );
 
     foreach (mod_manager::get_mods() as $mod) {
@@ -43,9 +43,9 @@ if ($hassiteconfig && $ADMIN->locate('localplugins')) {
 
 if ($hassiteconfig && $ADMIN->locate('reports')) {
     $ADMIN->add('reports',
-        new admin_externalpage('local_submissionrestict_report',
-            new lang_string('report:title', 'local_submissionrestict'),
-            $CFG->wwwroot . '/local/submissionrestict/report.php?pagecontextid= ' . context_system::instance()->id,
-            ['local/submissionrestict:overridereport'])
+        new admin_externalpage('local_submissionrestrict_report',
+            new lang_string('report:title', 'local_submissionrestrict'),
+            $CFG->wwwroot . '/local/submissionrestrict/report.php?pagecontextid= ' . context_system::instance()->id,
+            ['local/submissionrestrict:overridereport'])
     );
 }

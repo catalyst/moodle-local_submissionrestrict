@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict;
+namespace local_submissionrestrict;
 
 /**
  * Tests for observer.
  *
- * @package    local_submissionrestict
+ * @package    local_submissionrestrict
  * @copyright  2022 Catalyst IT
  * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -36,8 +36,8 @@ class observer_test extends \advanced_testcase {
         $this->setAdminUser();
 
         // Config default restore time.
-        set_config('assign_restore_hour', 23, 'local_submissionrestict');
-        set_config('assign_restore_minute', 55, 'local_submissionrestict');
+        set_config('assign_restore_hour', 23, 'local_submissionrestrict');
+        set_config('assign_restore_minute', 55, 'local_submissionrestrict');
 
         // Set initial date and time.
         $now = '12.11.2021 13:00';
@@ -78,7 +78,7 @@ class observer_test extends \advanced_testcase {
         $this->assertEquals(0, $newassign2record->cutoffdate);
 
         // Enable restore reset feature.
-        set_config('assign_restore_enabled', 1, 'local_submissionrestict');
+        set_config('assign_restore_enabled', 1, 'local_submissionrestrict');
 
         // Backup and restore activities.
         $newcm1 = duplicate_module($course, get_fast_modinfo($course)->get_cm($assign1->cmid));

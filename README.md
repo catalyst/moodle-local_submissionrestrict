@@ -1,4 +1,4 @@
-![Build Status](https://github.com/catalyst/moodle-local_submissionrestict/actions/workflows/ci.yml/badge.svg?branch=MOODLE_39_STABLE)
+![Build Status](https://github.com/catalyst/moodle-local_submissionrestrict/actions/workflows/ci.yml/badge.svg?branch=MOODLE_39_STABLE)
 
 # Submission restriction #
 
@@ -31,7 +31,7 @@ TODO
 
 The plugin can be also installed by putting the contents of this directory to
 
-    {your/moodle/dirroot}/local/submissionrestict
+    {your/moodle/dirroot}/local/submissionrestrict
 
 Afterwards, log in to your Moodle site as an admin and go to Site administration >
 Notifications to complete the installation.
@@ -59,7 +59,7 @@ https://www.catalyst-au.net/
 
 Issues, and pull requests using github are welcome and encouraged!
 
-https://github.com/catalyst/moodle-local_submissionrestict/issues
+https://github.com/catalyst/moodle-local_submissionrestrict/issues
 
 If you would like commercial support or would like to sponsor additional improvements
 to this plugin please contact us:

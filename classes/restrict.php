@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict;
+namespace local_submissionrestrict;
 
 use core\persistent;
 
 /**
  * Class containing restrictions for activities.
  *
- * @package     local_submissionrestict
+ * @package     local_submissionrestrict
  * @copyright   2021 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,7 +31,7 @@ class restrict extends persistent {
     /**
      * Table name.
      */
-    const TABLE = 'local_submissionrestict';
+    const TABLE = 'local_submissionrestrict';
 
     /**
      * Return the definition of the properties of this model.

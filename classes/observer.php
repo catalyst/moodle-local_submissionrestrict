@@ -14,18 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict;
+namespace local_submissionrestrict;
 
 use core\event\grade_item_created;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/local/submissionrestict/lib.php');
+require_once($CFG->dirroot . '/local/submissionrestrict/lib.php');
 
 /**
  * Observer class.
  *
- * @package    local_submissionrestict
+ * @package    local_submissionrestrict
  * @author     Dmitrii Metelkin <dmitriim@catalyst-au.net>
  * @copyright  2022 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

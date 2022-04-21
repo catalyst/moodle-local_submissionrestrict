@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict;
+namespace local_submissionrestrict;
 
 /**
  * Tests for helper class.
  *
- * @package    local_submissionrestict
+ * @package    local_submissionrestrict
  * @copyright  2021 Catalyst IT
  * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,7 +29,7 @@ class helper_test extends \advanced_testcase {
     /**
      * Test calculating a new time.
      */
-    public function test_local_submissionrestict_calculate_new_time() {
+    public function test_local_submissionrestrict_calculate_new_time() {
         $now = '12.11.2021 13:00';
 
         // Generate expected timestamp for the time we are going to calculate for.

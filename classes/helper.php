@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict;
+namespace local_submissionrestrict;
 
 use \core_calendar\type_factory;
 
 /**
  * Helper class.
  *
- * @package    local_submissionrestict
+ * @package    local_submissionrestrict
  * @author     Dmitrii Metelkin <dmitriim@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -34,7 +34,7 @@ class helper {
      *
      * @param int $date A unix time stamp date to calculate a new time for.
      * @param time $newtime A new time.
-     * @param \local_submissionrestict\time[] $ignoretimes A list of times to ignore.
+     * @param \local_submissionrestrict\time[] $ignoretimes A list of times to ignore.
      *
      * @return int|null New unix time stamp.
      */

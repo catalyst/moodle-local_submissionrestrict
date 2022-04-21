@@ -17,7 +17,7 @@
 /**
  * Plugin version and other meta-data are defined here.
  *
- * @package     local_submissionrestict
+ * @package     local_submissionrestrict
  * @copyright   2021 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_submissionrestict';
+$plugin->component = 'local_submissionrestrict';
 $plugin->version = 2022032303;
 $plugin->release = 2022032303;
 $plugin->requires = 2020061500;

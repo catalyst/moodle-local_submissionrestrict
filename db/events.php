@@ -18,7 +18,7 @@
 /**
  * Registered observers.
  *
- * @package    local_submissionrestict
+ * @package    local_submissionrestrict
  * @copyright  2022 Catalyst IT
  * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,6 +29,6 @@ defined('MOODLE_INTERNAL') || die();
 $observers = [
     [
         'eventname' => '\core\event\grade_item_created',
-        'callback'  => '\local_submissionrestict\observer::handle_grade_item_created'
+        'callback'  => '\local_submissionrestrict\observer::handle_grade_item_created'
     ]
 ];

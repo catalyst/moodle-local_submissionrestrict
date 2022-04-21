@@ -17,7 +17,7 @@
 /**
  * Define capabilities.
  *
- * @package     local_submissionrestict
+ * @package     local_submissionrestrict
  * @copyright   2021 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,11 +26,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-    'local/submissionrestict:override' => [
+    'local/submissionrestrict:override' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSECAT,
     ],
-    'local/submissionrestict:overridereport' => [
+    'local/submissionrestrict:overridereport' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSECAT,
     ],

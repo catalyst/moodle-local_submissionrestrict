@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict\local\mod;
+namespace local_submissionrestrict\local\mod;
 
 use admin_settingpage;
 use admin_setting_configtextarea;
 use core_calendar\type_factory;
-use local_submissionrestict\datetime_limited;
-use local_submissionrestict\helper;
-use local_submissionrestict\mod_base;
+use local_submissionrestrict\datetime_limited;
+use local_submissionrestrict\helper;
+use local_submissionrestrict\mod_base;
 use grade_item;
-use local_submissionrestict\restrict;
-use local_submissionrestict\time;
+use local_submissionrestrict\restrict;
+use local_submissionrestrict\time;
 use moodleform_mod;
 use MoodleQuickForm;
 use stdClass;
@@ -32,7 +32,7 @@ use stdClass;
 /**
  * Submission restriction for assign.
  *
- * @package     local_submissionrestict
+ * @package     local_submissionrestrict
  * @copyright   2021 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -53,16 +53,16 @@ class assign extends mod_base {
         parent::add_extra_settings($settings);
 
         $settings->add(new admin_setting_configtextarea(
-            "local_submissionrestict/{$this->build_config_name('timeslots')}",
-            get_string('settings:timeslots', 'local_submissionrestict'),
-            get_string('settings:timeslots_desc', 'local_submissionrestict'),
+            "local_submissionrestrict/{$this->build_config_name('timeslots')}",
+            get_string('settings:timeslots', 'local_submissionrestrict'),
+            get_string('settings:timeslots_desc', 'local_submissionrestrict'),
             '')
         );
 
         $settings->add(new admin_setting_configtextarea(
-            "local_submissionrestict/{$this->build_config_name('reasons')}",
-            get_string('settings:reasons', 'local_submissionrestict'),
-            get_string('settings:reasons_desc', 'local_submissionrestict'),
+            "local_submissionrestrict/{$this->build_config_name('reasons')}",
+            get_string('settings:reasons', 'local_submissionrestrict'),
+            get_string('settings:reasons_desc', 'local_submissionrestrict'),
             '')
         );
     }
@@ -90,7 +90,7 @@ class assign extends mod_base {
     protected function get_available_time_slots(): array {
         $timeslots = [];
 
-        $config = get_config('local_submissionrestict', $this->build_config_name('timeslots'));
+        $config = get_config('local_submissionrestrict', $this->build_config_name('timeslots'));
 
         if (!empty($config)) {
             $items = explode("\n", str_replace("\r\n", "\n", $config));
@@ -112,9 +112,9 @@ class assign extends mod_base {
      */
     protected function get_reason_options(): array {
         $reasons = [];
-        $reasons[0] = get_string('reason', 'local_submissionrestict');
+        $reasons[0] = get_string('reason', 'local_submissionrestrict');
 
-        $config = get_config('local_submissionrestict', $this->build_config_name('reasons'));
+        $config = get_config('local_submissionrestrict', $this->build_config_name('reasons'));
 
         if (!empty($config)) {
             $items = explode("\n", str_replace("\r\n", "\n", $config));
@@ -172,8 +172,8 @@ class assign extends mod_base {
 
         MoodleQuickForm::registerElementType(
             'datetimelimited',
-            $CFG->dirroot . '/local/submissionrestict/classes/datetime_limited.php',
-            'local_submissionrestict\datetime_limited'
+            $CFG->dirroot . '/local/submissionrestrict/classes/datetime_limited.php',
+            'local_submissionrestrict\datetime_limited'
         );
 
         // Make due date element hidden.
@@ -212,7 +212,7 @@ class assign extends mod_base {
             $overridengroup[] = $form->createElement('select', 'reason', '', $this->get_reason_options());
             $overridengr = $form->createElement('group', 'overridengr', '', $overridengroup, ['&nbsp;'], false);
             $form->insertElementBefore($overridengr, 'cutoffdate');
-            $form->addHelpButton('overridengr', 'reasons', 'local_submissionrestict');
+            $form->addHelpButton('overridengr', 'reasons', 'local_submissionrestrict');
 
             // Disable fields if a new due date is not enabled.
             $fieldenabled = self::NEW_DUEDATE_FORM_FIELD  . '[enabled]';
@@ -255,7 +255,7 @@ class assign extends mod_base {
                     $form->removeElement(self::NEW_DUEDATE_FORM_FIELD);
 
                     $date = userdate($newdate) . \html_writer::empty_tag('br')
-                        . get_string('reasonforvariation', 'local_submissionrestict') . ': '
+                        . get_string('reasonforvariation', 'local_submissionrestrict') . ': '
                         . $restrictrecord->get('reason');
 
                     $element = $form->createElement('static', 'date', get_string('duedate', 'assign'),  $date);
@@ -356,7 +356,7 @@ class assign extends mod_base {
         $errors = [];
 
         if (isset($data['reason']) && empty($data['reason'])) {
-            $errors['overridengr'] = get_string('error:reasonrequired', 'local_submissionrestict');
+            $errors['overridengr'] = get_string('error:reasonrequired', 'local_submissionrestrict');
         }
 
         // Cover a scenario when due date is set to 0 as a new overridden due date is taking advantage.

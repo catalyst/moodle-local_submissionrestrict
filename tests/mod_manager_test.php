@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict;
+namespace local_submissionrestrict;
 
-use local_submissionrestict\local\mod\assign;
+use local_submissionrestrict\local\mod\assign;
 
 /**
  * Tests for mod_manager class.
- * @package    local_submissionrestict
+ * @package    local_submissionrestrict
  * @copyright  2022 Catalyst IT
  * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -46,8 +46,8 @@ class mod_manager_test extends \advanced_testcase {
         $mods = mod_manager::get_functional_mods();
         $this->assertEmpty($mods);
 
-        set_config('assign_timeslots', '9:30', 'local_submissionrestict');
-        set_config('assign_reasons', 'Test reason', 'local_submissionrestict');
+        set_config('assign_timeslots', '9:30', 'local_submissionrestrict');
+        set_config('assign_reasons', 'Test reason', 'local_submissionrestrict');
 
         $mods = mod_manager::get_functional_mods();
 

@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict;
+namespace local_submissionrestrict;
 
 /**
  * Manager class.
  *
- * @package     local_submissionrestict
+ * @package     local_submissionrestrict
  * @copyright   2021 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -59,7 +59,7 @@ class mod_manager {
             $filename = $item->getFilename();
             $classname = preg_replace('/\.php$/', '', $filename);
 
-            $namespaced = "\\local_submissionrestict\\local\\mod\\{$classname}";
+            $namespaced = "\\local_submissionrestrict\\local\\mod\\{$classname}";
             $object = new $namespaced();
             if ($object instanceof mod_base) {
                 self::$mods[$classname] = new $namespaced();

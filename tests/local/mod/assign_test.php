@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_submissionrestict\local\mod;
+namespace local_submissionrestrict\local\mod;
 
-use local_submissionrestict\restrict;
+use local_submissionrestrict\restrict;
 
 /**
  * Tests for assign class.
- * @package    local_submissionrestict
+ * @package    local_submissionrestrict
  * @copyright  2022 Catalyst IT
  * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -55,7 +55,7 @@ class assign_test extends \advanced_testcase {
         $assign = new assign();
         $this->assertFalse($assign->is_restore_reset_enabled());
 
-        set_config('assign_restore_enabled', 1, 'local_submissionrestict');
+        set_config('assign_restore_enabled', 1, 'local_submissionrestrict');
         $this->assertTrue($assign->is_restore_reset_enabled());
     }
 
@@ -71,8 +71,8 @@ class assign_test extends \advanced_testcase {
         $this->assertSame(0, $time->get_hour());
         $this->assertSame(0, $time->get_minute());
 
-        set_config('assign_restore_hour', 10, 'local_submissionrestict');
-        set_config('assign_restore_minute', 15, 'local_submissionrestict');
+        set_config('assign_restore_hour', 10, 'local_submissionrestrict');
+        set_config('assign_restore_minute', 15, 'local_submissionrestrict');
 
         $time = $assign->get_restore_time();
         $this->assertSame(10, $time->get_hour());
@@ -87,8 +87,8 @@ class assign_test extends \advanced_testcase {
 
         $this->resetAfterTest();
 
-        set_config('assign_restore_hour', 10, 'local_submissionrestict');
-        set_config('assign_restore_minute', 15, 'local_submissionrestict');
+        set_config('assign_restore_hour', 10, 'local_submissionrestrict');
+        set_config('assign_restore_minute', 15, 'local_submissionrestrict');
         $assign = new assign();
 
         $time = new \DateTime('12.11.2021 13:00', \core_date::get_user_timezone_object());
@@ -183,7 +183,7 @@ class assign_test extends \advanced_testcase {
         $this->assertFalse($assign->has_override_permissions($coursecontext));
 
         $role = $DB->get_record('role', ['shortname' => 'editingteacher'], '*', MUST_EXIST);
-        assign_capability('local/submissionrestict:override', CAP_ALLOW, $role->id, $coursecontext);
+        assign_capability('local/submissionrestrict:override', CAP_ALLOW, $role->id, $coursecontext);
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $role->id);
 
         $this->assertFalse($assign->has_override_permissions());
@@ -200,8 +200,8 @@ class assign_test extends \advanced_testcase {
     public function test_pre_course_module_delete() {
         $this->resetAfterTest();
 
-        set_config('assign_timeslots', '9:30', 'local_submissionrestict');
-        set_config('assign_reasons', 'Test reason', 'local_submissionrestict');
+        set_config('assign_timeslots', '9:30', 'local_submissionrestrict');
+        set_config('assign_reasons', 'Test reason', 'local_submissionrestrict');
 
         $assign = new assign();
 
@@ -248,8 +248,8 @@ class assign_test extends \advanced_testcase {
 
         $this->assertFalse($assign->is_functional());
 
-        set_config('assign_timeslots', '9:30', 'local_submissionrestict');
-        set_config('assign_reasons', 'Test reason', 'local_submissionrestict');
+        set_config('assign_timeslots', '9:30', 'local_submissionrestrict');
+        set_config('assign_reasons', 'Test reason', 'local_submissionrestrict');
 
         $this->assertTrue($assign->is_functional());
     }
