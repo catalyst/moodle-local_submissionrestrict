@@ -29,4 +29,5 @@ $plugin->component = 'local_submissionrestrict';
 $plugin->version = 2022032303;
 $plugin->release = 2022032303;
 $plugin->requires = 2020061500;
+$plugin->supported = [39, 401];  // Available as of Moodle 3.9.0 or later.
 $plugin->maturity = MATURITY_STABLE;
