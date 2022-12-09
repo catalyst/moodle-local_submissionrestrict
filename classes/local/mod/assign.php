@@ -179,6 +179,9 @@ class assign extends mod_base {
         );
 
         // Make due date element hidden.
+        // We need duedate field in the form to make sure that we save it to DB when the form is getting processed later on.
+        // We will update the value of duedate in coursemodule_definition_after_data method,
+        // so we can set whatever is set in our new NEW_DUEDATE_FORM_FIELD.
         $form->removeElement('duedate');
         $form->addElement('hidden', 'duedate');
         $form->setType('duedate', PARAM_INT);
@@ -285,7 +288,10 @@ class assign extends mod_base {
             }
         }
 
-        if ($form->isSubmitted() && $form->elementExists(self::NEW_DUEDATE_FORM_FIELD)) {
+        // This is a very hacky way of making sure that duedate field is set to a new value based on data in the different field.
+        // Replace a value of the current duedate field (field should be set hidden in coursemodule_standard_elements)
+        // with a new data if actual submit button pressed (ignoring unlock completion button).
+        if ($form->isSubmitted() && !$modform->no_submit_button_pressed() && $form->elementExists(self::NEW_DUEDATE_FORM_FIELD) ) {
             $element = $form->getElement(self::NEW_DUEDATE_FORM_FIELD);
             $submittedvalue = $form->getSubmitValue(self::NEW_DUEDATE_FORM_FIELD);
             $exportedvalue = $element->exportValue($submittedvalue);
@@ -302,6 +308,8 @@ class assign extends mod_base {
                 $newduedate = $exportedvalue['time'];
             }
 
+            // Hack detected.
+            // We are setting duedate  with a freshly calculated value and then resubmitting all values in the form.
             $values['duedate'] = $newduedate;
             $form->updateSubmission($values, $form->_submitFiles);
         }
