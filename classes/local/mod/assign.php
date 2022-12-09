@@ -156,6 +156,8 @@ class assign extends mod_base {
 
             if ($needupdate) {
                 $DB->update_record($this->get_name(), $record);
+
+                rebuild_course_cache($gradeitem->courseid, false, true);
                 $this->update_calendar($gradeitem->iteminstance);
             }
         }

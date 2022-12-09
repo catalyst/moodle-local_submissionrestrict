@@ -110,8 +110,6 @@ class datetime_limited extends MoodleQuickForm_group {
 
     /**
      * This will create date group element constisting of day, month and year.
-     *
-     * @access private
      */
     public function _createElements() {
         global $OUTPUT;
@@ -234,6 +232,9 @@ class datetime_limited extends MoodleQuickForm_group {
         return true;
     }
 
+    /**
+     * Freezes the element.
+     */
     public function freeze() {
         parent::freeze();
 
