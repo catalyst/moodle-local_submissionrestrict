@@ -50,7 +50,6 @@ function local_submissionrestrict_coursemodule_standard_elements(moodleform_mod 
     }
 }
 
-
 /**
  * Extend course module form after the data already set.
  *
@@ -183,3 +182,60 @@ function local_submissionrestrict_extend_navigation_category_settings(navigation
     }
 }
 
+/**
+ * Call back to change report edit dates form.
+ *
+ * @param \report_editdates_form $dform Form instance.
+ * @param \MoodleQuickForm $form Form instance.
+ */
+function local_submissionrestrict_report_editdates_form_elements($dform, MoodleQuickForm $form): void {
+    foreach (mod_manager::get_functional_mods() as $mod) {
+        $mod->report_editdates_form_elements($dform, $form);
+    }
+}
+
+/**
+ * Call back to change report edit dates form definition after a data is set.
+ *
+ * @param \report_editdates_form $dform Form instance.
+ * @param \MoodleQuickForm $form Form instance.
+ */
+function local_submissionrestrict_report_editdates_form_definition_after_data($dform, MoodleQuickForm $form): void {
+    foreach (mod_manager::get_functional_mods() as $mod) {
+        $mod->report_editdates_form_definition_after_data($dform, $form);
+    }
+}
+
+/**
+ * Call back for form validation of a report edit dates form.
+ *
+ * @param \report_editdates_form $dform Form instance.
+ * @param array $data Submitted data.
+ *
+ * @return array
+ */
+function local_submissionrestrict_report_editdates_form_validation(report_editdates_form $dform, array $data): array {
+    $errors = [];
+
+    foreach (mod_manager::get_functional_mods() as $mod) {
+        $errors = array_merge($errors, $mod->report_editdates_form_validation($dform, $data));
+    }
+
+    return $errors;
+}
+
+/**
+ * Post submission actions of a report edit dates form.
+ *
+ * @param \stdClass $data Submitted data.
+ * @param \stdClass $course Related course.
+ *
+ * @return \stdClass
+ */
+function local_submissionrestrict_report_editdates_form_post_actions(stdClass $data, stdClass $course): stdClass {
+    foreach (mod_manager::get_functional_mods() as $mod) {
+        $data = $mod->report_editdates_form_post_actions($data, $course);
+    }
+
+    return $data;
+}
