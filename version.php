@@ -26,8 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_submissionrestrict';
-$plugin->version = 2023010500;
-$plugin->release = 2023010500;
+$plugin->version = 2024112200;
+$plugin->release = 2024112200;
 $plugin->requires = 2020061500;
-$plugin->supported = [39, 401];  // Available as of Moodle 3.9.0 or later.
+$plugin->supported = [39, 405];  // Available as of Moodle 3.9.0 or later.
 $plugin->maturity = MATURITY_STABLE;
