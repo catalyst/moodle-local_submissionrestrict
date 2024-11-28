@@ -1,4 +1,4 @@
-![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/catalyst/moodle-local_submissionrestrict/ci.yml?branch=MOODLE_39_STABLE)
+![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/catalyst/moodle-local_submissionrestrict/ci.yml?branch=MOODLE_405_STABLE)
 
 # Submission restriction #
 
@@ -6,9 +6,10 @@ TODO
 
 ## Versions and branches ##
 
-| Moodle Version    |  Branch                | 
-|-------------------|------------------------|
-| Moodle 3.9+       | MOODLE_39_STABLE       | 
+| Moodle Version          | Branch            | 
+|-------------------------|-------------------|
+| Moodle 4.5+             | MOODLE_405_STABLE | 
+| Moodle 3.9 - Moodle 4.1 | MOODLE_39_STABLE  | 
 
 ## Features ##
                                                       
