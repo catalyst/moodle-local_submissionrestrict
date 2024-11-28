@@ -119,6 +119,11 @@ class datetime_limited extends MoodleQuickForm_group {
 
         $this->_elements = [];
 
+        // If optional we add a checkbox which the user can use to turn if on.
+        if ($this->_options['optional']) {
+            $this->_elements[] = $this->createFormElement('checkbox', 'enabled', null, get_string('enable'), $this->getAttributesForFormElement(), true);
+        }
+
         $dateformat = $calendartype->get_date_order($this->_options['startyear'], $this->_options['stopyear']);
         if (right_to_left()) {   // Display time to the right of date, in RTL mode.
             // Reverse date element (Should be: Day, Month, Year), in RTL mode.
@@ -126,11 +131,11 @@ class datetime_limited extends MoodleQuickForm_group {
         }
         foreach ($dateformat as $key => $date) {
             // E_STRICT creating elements without forms is nasty because it internally uses $this.
-            $this->_elements[] = $this->createFormElement('select', $key, get_string($key, 'form'), $date, $this->getAttributes(), true);
+            $this->_elements[] = $this->createFormElement('select', $key, get_string($key, 'form'), $date, $this->getAttributesForFormElement(), true);
         }
 
         $this->_elements[] = $this->createFormElement('select', 'time', get_string('minute', 'form'),
-            $this->_options['timeslots'], $this->getAttributes(), true);
+            $this->_options['timeslots'], $this->getAttributesForFormElement(), true);
 
 
         // The YUI2 calendar only supports the gregorian calendar type so only display the calendar image if this is being used.
@@ -138,10 +143,6 @@ class datetime_limited extends MoodleQuickForm_group {
             $image = $OUTPUT->pix_icon('i/calendar', get_string('calendar', 'calendar'), 'moodle');
             $this->_elements[] = $this->createFormElement('link', 'calendar',
                     null, '#', $image);
-        }
-        // If optional we add a checkbox which the user can use to turn if on.
-        if ($this->_options['optional']) {
-            $this->_elements[] = $this->createFormElement('checkbox', 'enabled', null, get_string('enable'), $this->getAttributes(), true);
         }
 
         foreach ($this->_elements as $element){
