@@ -751,6 +751,10 @@ class assign extends mod_base {
      * @return string|null
      */
     private function get_cmid_from_element_name(?string $elementname): ?string {
+        if (empty($elementname)) {
+            return null;
+        }
+
         $parts = explode('_', $elementname);
 
         if (count($parts) != 4) {
@@ -773,7 +777,7 @@ class assign extends mod_base {
      *
      * Fields in report edit dates built as date_mod_{cmid}_{datefieldname}.
      *
-     * @param string|null $elementname Name of the element.
+     * @param string $elementname Name of the element.
      * @return string|null
      */
     private function get_date_field_name_from_element_name(string $elementname): ?string {
