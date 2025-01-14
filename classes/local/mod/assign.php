@@ -204,14 +204,6 @@ class assign extends mod_base {
             } else {
                 $form->setDefault(self::NEW_DUEDATE_FORM_FIELD, 0);
             }
-        } else {
-            // Otherwise if value is overridden (other is selected), then apply default overridden value.
-            $element = $form->getElement(self::NEW_DUEDATE_FORM_FIELD);
-            $submittedvalue = $form->getElementValue(self::NEW_DUEDATE_FORM_FIELD);
-            $exportedvalue = $element->exportValue($submittedvalue);
-            if (empty($exportedvalue['overridden'])) {
-                $form->setDefault(self::NEW_DUEDATE_FORM_FIELD, $form->getElementValue('duedate'));
-            }
         }
 
         // This is a very hacky way of making sure that duedate field is set to a new value based on data in the different field.
