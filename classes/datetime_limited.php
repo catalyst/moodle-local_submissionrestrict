@@ -189,6 +189,14 @@ class datetime_limited extends MoodleQuickForm_group {
                     if ($currentdate['hours'] == 0 && $currentdate['minutes'] == 0) {
                         $time = self::OTHER_VALUE;
                     } else {
+                        // Hours and minutes can come without leading zeroes.
+                        // We really want them to have leading zeros. Otherwise, form field select will not work pick those values.
+                        foreach (['hours', 'minutes'] as $field) {
+                            if (strlen($currentdate[$field]) == 1) {
+                                $currentdate[$field] = '0' . $currentdate[$field];
+                            }
+                        }
+
                         $time = $currentdate['hours'] . ':' . $currentdate['minutes'];
                     }
 
