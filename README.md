@@ -1,4 +1,4 @@
-![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/catalyst/moodle-local_submissionrestrict/ci.yml?branch=MOODLE_39_STABLE)
+[![ci](https://github.com/catalyst/moodle-local_submissionrestrict/actions/workflows/ci.yml/badge.svg?branch=MOODLE_39_STABLE)](https://github.com/catalyst/moodle-local_submissionrestrict/actions/workflows/ci.yml?branch=MOODLE_39_STABLE)
 
 # Submission restriction #
 
