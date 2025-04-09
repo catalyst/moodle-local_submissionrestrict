@@ -95,4 +95,72 @@ class observer_test extends \advanced_testcase {
         $this->assertEquals(0, $newassign2record->cutoffdate);
     }
 
+    /**
+     * Test handling grade_item_created event.
+     */
+    public function test_handle_grade_item_created_for_quiz() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Config default restore time.
+        set_config('quiz_restore_hour', 23, 'local_submissionrestrict');
+        set_config('quiz_restore_minute', 55, 'local_submissionrestrict');
+
+        // Set initial date and time.
+        $now = '12.11.2021 13:00';
+        $initialtime = new \DateTime($now, \core_date::get_user_timezone_object());
+        $initialtime->setTime(15, 00);
+        $date = $initialtime->getTimestamp();
+
+        $course = $this->getDataGenerator()->create_course();
+
+        // Quiz with dates configured.
+        $record = ['timeopen' => $date, 'timeclose' => $date, 'course' => $course->id];
+        $quiz1 = $this->getDataGenerator()->create_module('quiz', $record);
+        // Quiz without dates configured.
+        $quiz2 = $this->getDataGenerator()->create_module('quiz', ['course' => $course->id]);
+        // Random activity to make sure we don't explode on them.
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
+
+        $quiz1record = $DB->get_record('quiz', ['course' => $course->id, 'id' => $quiz1->id]);
+        $quiz2record = $DB->get_record('quiz', ['course' => $course->id, 'id' => $quiz2->id]);
+
+        // Check initial dates.
+        $this->assertEquals($initialtime->getTimestamp(), $quiz1record->timeclose);
+        $this->assertEquals($initialtime->getTimestamp(), $quiz1record->timeopen);
+        $this->assertEquals(0, $quiz2record->timeclose);
+        $this->assertEquals(0, $quiz2record->timeopen);
+
+        // Backup and restore activities.
+        $newcm1 = duplicate_module($course, get_fast_modinfo($course)->get_cm($quiz1->cmid));
+        $newcm2 = duplicate_module($course, get_fast_modinfo($course)->get_cm($quiz2->cmid));
+        $newcm3 = duplicate_module($course, get_fast_modinfo($course)->get_cm($forum->cmid));
+
+        // Check dates stay the same for new restored activities.
+        $newquiz1record = $DB->get_record('quiz', ['course' => $course->id, 'id' => $newcm1->instance]);
+        $newquiz2record = $DB->get_record('quiz', ['course' => $course->id, 'id' => $newcm2->instance]);
+        $this->assertEquals($initialtime->getTimestamp(), $newquiz1record->timeclose);
+        $this->assertEquals($initialtime->getTimestamp(), $newquiz1record->timeopen);
+        $this->assertEquals(0, $newquiz2record->timeclose);
+        $this->assertEquals(0, $newquiz2record->timeopen);
+
+        // Enable restore reset feature.
+        set_config('quiz_restore_enabled', 1, 'local_submissionrestrict');
+
+        // Backup and restore activities.
+        $newcm1 = duplicate_module($course, get_fast_modinfo($course)->get_cm($quiz1->cmid));
+        $newcm2 = duplicate_module($course, get_fast_modinfo($course)->get_cm($quiz2->cmid));
+        $newcm3 = duplicate_module($course, get_fast_modinfo($course)->get_cm($forum->cmid));
+
+        // Check dates changed for new restored activities.
+        $newquiz1record = $DB->get_record('quiz', ['course' => $course->id, 'id' => $newcm1->instance]);
+        $newquiz2record = $DB->get_record('quiz', ['course' => $course->id, 'id' => $newcm2->instance]);
+        $initialtime->setTime(23, 55);
+        $this->assertEquals($initialtime->getTimestamp(), $newquiz1record->timeclose);
+        $this->assertEquals($quiz1record->timeopen, $newquiz1record->timeopen); // Timeopen shouldn't change.
+        $this->assertEquals(0, $newquiz2record->timeclose);
+        $this->assertEquals(0, $newquiz2record->timeopen);
+    }
 }
