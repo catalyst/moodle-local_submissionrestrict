@@ -198,4 +198,47 @@ abstract class mod_base {
         return true;
     }
 
+    /**
+     * Modify report edit dates form.
+     *
+     * @param \report_editdates_form $dform  Report form instance.
+     * @param \MoodleQuickForm $form Actual form instance.
+     */
+    public function report_editdates_form_elements($dform, MoodleQuickForm $form): void {
+
+    }
+
+    /**
+     * Extend report edit form after data is already set.
+     *
+     * @param \report_editdates_form $dform  Report form instance.
+     * @param MoodleQuickForm $form Form instance.
+     */
+    public function report_editdates_form_definition_after_data($dform, MoodleQuickForm $form): void {
+
+    }
+
+    /**
+     * Validate report edit dates form.
+     *
+     * @param \report_editdates_form $dform  Report form instance.
+     * @param array $data Submitted values.
+     *
+     * @return array
+     */
+    public function report_editdates_form_validation($dform, array $data): array {
+        return [];
+    }
+
+    /**
+     * POst submission actions.
+     *
+     * @param \stdClass $data Submitted data.
+     * @param \stdClass $course Course.
+     *
+     * @return \stdClass
+     */
+    public function report_editdates_form_post_actions(stdClass $data, stdClass $course): stdClass {
+        return $data;
+    }
 }
