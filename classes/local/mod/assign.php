@@ -23,6 +23,7 @@ use local_submissionrestrict\datetime_limited;
 use local_submissionrestrict\helper;
 use local_submissionrestrict\mod_base;
 use grade_item;
+use local_submissionrestrict\report_editdates;
 use local_submissionrestrict\restrict;
 use local_submissionrestrict\time;
 use moodleform_mod;
@@ -38,6 +39,7 @@ use stdClass;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class assign extends mod_base {
+    use report_editdates;
 
     /**
      * Custom due date field name.
@@ -539,17 +541,17 @@ class assign extends mod_base {
         foreach ($form->_elements as $element) {
             $elementname = $element->getName();
 
-            $cmid = $this->get_cmid_from_element_name($elementname);
+            $cmid = $this->report_get_cmid_from_element_name($elementname);
             if (empty($cmid)) {
                 continue;
             }
 
             $cminfo = $dform->get_modinfo()->get_cm($cmid);
-            if ($cminfo->modname != 'assign') {
+            if ($cminfo->modname != $this->get_name()) {
                 continue;
             }
 
-            if ($this->get_date_field_name_from_element_name($elementname) == 'duedate') {
+            if ($this->report_get_date_field_name_from_element_name($elementname) == 'duedate') {
 
                 $overridengrelementname = 'overridengr_' . $cmid . '_' . 'assign';
                 $cutoffdateelementname = str_replace('duedate', 'cutoffdate', $elementname);
@@ -558,10 +560,10 @@ class assign extends mod_base {
                     $form,
                     $cmid,
                     $elementname,
-                    $this->build_new_element_name($cmid),
+                    $this->build_new_element_name($cmid, self::NEW_DUEDATE_FORM_FIELD),
                     $overridengrelementname,
                     $cutoffdateelementname,
-                    $this->build_field_prefix($cmid)
+                    $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD)
                 );
             }
         }
@@ -580,27 +582,27 @@ class assign extends mod_base {
 
         foreach ($data as $elementname => $value) {
 
-            $cmid = $this->get_cmid_from_element_name($elementname);
+            $cmid = $this->report_get_cmid_from_element_name($elementname);
             if (empty($cmid)) {
                 continue;
             }
 
             $cminfo = $dform->get_modinfo()->get_cm($cmid);
-            if ($cminfo->modname != 'assign') {
+            if ($cminfo->modname != $this->get_name()) {
                 continue;
             }
 
-            if ($this->get_date_field_name_from_element_name($elementname) == 'duedate') {
+            if ($this->report_get_date_field_name_from_element_name($elementname) == 'duedate') {
                 $overridengrelementname = 'overridengr_' . $cmid . '_' . 'assign';
                 $allowsubmissionsfromdatefield = str_replace('duedate', 'allowsubmissionsfromdate', $elementname);
 
                 $errors = array_merge($errors, $this->validate_dates_fields(
                     $data,
                     $elementname,
-                    $this->build_new_element_name($cmid),
+                    $this->build_new_element_name($cmid, self::NEW_DUEDATE_FORM_FIELD),
                     $overridengrelementname,
                     $allowsubmissionsfromdatefield,
-                    $this->build_field_prefix($cmid)
+                    $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD)
                 ));
             }
         }
@@ -623,7 +625,7 @@ class assign extends mod_base {
             foreach ($form->_elements as $element) {
                 $elementname = $element->getName();
 
-                $cmid = $this->get_cmid_from_element_name($elementname);
+                $cmid = $this->report_get_cmid_from_element_name($elementname);
                 if (empty($cmid)) {
                     continue;
                 }
@@ -633,11 +635,11 @@ class assign extends mod_base {
                     continue;
                 }
 
-                if ($this->get_date_field_name_from_element_name($elementname) == 'duedate') {
+                if ($this->report_get_date_field_name_from_element_name($elementname) == 'duedate') {
 
-                    $newelementname = $this->build_new_element_name($cmid);
-                    $newelementhour = $this->build_field_prefix($cmid) . 'hour';
-                    $newelementminute = $this->build_field_prefix($cmid) . 'minute';
+                    $newelementname = $this->build_new_element_name($cmid, self::NEW_DUEDATE_FORM_FIELD);
+                    $newelementhour = $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD) . 'hour';
+                    $newelementminute = $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD) . 'minute';
 
                     if (!$form->elementExists($newelementname)) {
                         continue;
@@ -648,10 +650,11 @@ class assign extends mod_base {
                     $exportedvalue = $customelement->exportValue($submittedvalue);
 
                     $newduedate = $form->getSubmitValue($elementname);
+                    $prefix = $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD);
 
                     if (empty($exportedvalue)) {
                         $newduedate = 0;
-                    } else if ($this->is_new_date_overridden($exportedvalue, $values, $this->build_field_prefix($cmid))) {
+                    } else if ($this->is_new_date_overridden($exportedvalue, $values, $prefix)) {
                         $newduedate = helper::calculate_new_time(
                             $exportedvalue['time'],
                             new time($values[$newelementhour], $values[$newelementminute])
@@ -687,7 +690,7 @@ class assign extends mod_base {
         $modinfo = get_fast_modinfo($course);
 
         foreach ($data as $elementname => $elementvalue) {
-            $cmid = $this->get_cmid_from_element_name($elementname);
+            $cmid = $this->report_get_cmid_from_element_name($elementname);
 
             if (empty($cmid)) {
                 continue;
@@ -695,99 +698,22 @@ class assign extends mod_base {
 
             $cminfo = $modinfo->get_cm($cmid);
 
-            if ($cminfo->modname != 'assign') {
+            if ($cminfo->modname != $this->get_name()) {
                 continue;
             }
 
-            if ($this->get_date_field_name_from_element_name($elementname) == 'duedate') {
+            if ($this->report_get_date_field_name_from_element_name($elementname) == 'duedate') {
 
                 $this->form_post_actions(
                     $data,
                     $cmid,
-                    $this->build_new_element_name($cmid),
+                    $this->build_new_element_name($cmid, self::NEW_DUEDATE_FORM_FIELD),
                     $elementvalue,
-                    $this->build_field_prefix($cmid)
+                    $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD)
                 );
             }
         }
 
         return $data;
     }
-
-    /**
-     * Build prefix for fields based on cmid.
-     *
-     * @param string $cmid Course module id.
-     * @return string
-     */
-    private function build_field_prefix(string $cmid): string {
-        return $this->build_new_element_name($cmid) . '_';
-    }
-
-    /**
-     * Build new element name based on cmid.
-     *
-     * @param string $cmid Course module id.
-     * @return string
-     */
-    private function build_new_element_name($cmid): string {
-        return self::NEW_DUEDATE_FORM_FIELD . '_' . $cmid . '_' . 'assign';
-    }
-
-    /**
-     * Get course module id from element name.
-     *
-     * Fields in report edit dates built as date_mod_{cmid}_{datefieldname}.
-     *
-     * @param string|null $elementname Name of the element.
-     * @return string|null
-     */
-    private function get_cmid_from_element_name(?string $elementname): ?string {
-        if (empty($elementname)) {
-            return null;
-        }
-
-        $parts = explode('_', $elementname);
-
-        if (count($parts) != 4) {
-            return null;
-        }
-
-        if (!isset($parts['1']) || $parts['1'] !== 'mod' || !isset($parts['2']) || !isset($parts['3'])) {
-            return null;
-        }
-
-        if (is_integer($parts['2'])) {
-            return null;
-        }
-
-        return $parts['2'];
-    }
-
-    /**
-     * Get date field name from element name.
-     *
-     * Fields in report edit dates built as date_mod_{cmid}_{datefieldname}.
-     *
-     * @param string $elementname Name of the element.
-     * @return string|null
-     */
-    private function get_date_field_name_from_element_name(string $elementname): ?string {
-        $parts = explode('_', $elementname);
-
-        if (count($parts) != 4) {
-            return null;
-        }
-
-        if (!isset($parts['1']) || $parts['1'] !== 'mod' || !isset($parts['2']) || !isset($parts['3'])) {
-            return null;
-        }
-
-        if (is_integer($parts['2'])) {
-            return null;
-        }
-
-        return $parts['3'];
-    }
-
 }
