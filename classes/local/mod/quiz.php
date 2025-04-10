@@ -23,6 +23,7 @@ use local_submissionrestrict\datetime_limited;
 use local_submissionrestrict\helper;
 use local_submissionrestrict\mod_base;
 use grade_item;
+use local_submissionrestrict\report_editdates;
 use local_submissionrestrict\restrict;
 use local_submissionrestrict\time;
 use moodleform_mod;
@@ -38,6 +39,7 @@ use stdClass;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class quiz extends mod_base {
+    use report_editdates;
 
     /**
      * Custom date field name.
@@ -272,7 +274,7 @@ class quiz extends mod_base {
     /**
      * Update calendar events for provided instance.
      *
-     * @param int $instanceid Assignment instance id.
+     * @param int $instanceid Instance id.
      */
     protected function update_calendar(int $instanceid): void {
         global $DB;
@@ -419,7 +421,7 @@ class quiz extends mod_base {
     }
 
     /**
-     * Validate assign dates form submission.
+     * Validate dates form submission.
      *
      * @param array $data Data to validate.
      * @param string $oldfield Old field name.
@@ -513,5 +515,191 @@ class quiz extends mod_base {
                 $restrictrecord->delete();
             }
         }
+    }
+
+    /**
+     * Modify report edit dates form.
+     *
+     * @param \report_editdates_form $dform  Report form instance.
+     * @param \MoodleQuickForm $form Actual form instance.
+     */
+    public function report_editdates_form_elements($dform, MoodleQuickForm $form): void {
+        foreach ($form->_elements as $element) {
+            $elementname = $element->getName();
+
+            $cmid = $this->report_get_cmid_from_element_name($elementname);
+            if (empty($cmid)) {
+                continue;
+            }
+
+            $cminfo = $dform->get_modinfo()->get_cm($cmid);
+            if ($cminfo->modname != $this->get_name()) {
+                continue;
+            }
+
+            if ($this->report_get_date_field_name_from_element_name($elementname) == 'timeclose') {
+
+                $overridengrelementname = 'overridengr_' . $cmid . '_' . $this->get_name();
+                $addbeforeelement = 'modrestrict' . $cmid;
+
+                $this->replace_date_field(
+                    $form,
+                    $cmid,
+                    $elementname,
+                    $this->build_new_element_name($cmid, self::NEW_TIME_CLOSE_FIELD),
+                    $overridengrelementname,
+                    $addbeforeelement,
+                    $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD)
+                );
+            }
+        }
+    }
+
+    /**
+     * Validate report edit dates form.
+     *
+     * @param \report_editdates_form $dform  Report form instance.
+     * @param array $data Submitted values.
+     *
+     * @return array
+     */
+    public function report_editdates_form_validation($dform, array $data): array {
+        $errors = [];
+
+        foreach ($data as $elementname => $value) {
+
+            $cmid = $this->report_get_cmid_from_element_name($elementname);
+            if (empty($cmid)) {
+                continue;
+            }
+
+            $cminfo = $dform->get_modinfo()->get_cm($cmid);
+            if ($cminfo->modname != $this->get_name()) {
+                continue;
+            }
+
+            if ($this->report_get_date_field_name_from_element_name($elementname) == 'timeclose') {
+                $overridengrelementname = 'overridengr_' . $cmid . '_' . $this->get_name();
+                $timeopenfield = str_replace('timeclose', 'timeopen', $elementname);
+
+                $errors = array_merge($errors, $this->validate_dates_fields(
+                    $data,
+                    $elementname,
+                    $this->build_new_element_name($cmid, self::NEW_TIME_CLOSE_FIELD),
+                    $overridengrelementname,
+                    $timeopenfield,
+                    $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD)
+                ));
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Extend report edit form after data is already set.
+     *
+     * @param \report_editdates_form $dform  Report form instance.
+     * @param MoodleQuickForm $form Form instance.
+     */
+    public function report_editdates_form_definition_after_data($dform, MoodleQuickForm $form): void {
+        // This is a very hacky way of making sure that a date field is set to a new value based on data in the custom field.
+        if ($form->isSubmitted()) {
+            $resubmit = false; // We will need to resubmit all values later. Maybe.
+            $values = $form->getSubmitValues();
+
+            foreach ($form->_elements as $element) {
+                $elementname = $element->getName();
+
+                $cmid = $this->report_get_cmid_from_element_name($elementname);
+                if (empty($cmid)) {
+                    continue;
+                }
+
+                $cminfo = $dform->get_modinfo()->get_cm($cmid);
+                if ($cminfo->modname !=
+                    $this->get_name()) {
+                    continue;
+                }
+
+                if ($this->report_get_date_field_name_from_element_name($elementname) == 'timeclose') {
+
+                    $newelementname = $this->build_new_element_name($cmid, self::NEW_TIME_CLOSE_FIELD);
+                    $newelementhour = $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD) . 'hour';
+                    $newelementminute = $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD) . 'minute';
+
+                    if (!$form->elementExists($newelementname)) {
+                        continue;
+                    }
+
+                    $customelement = $form->getElement($newelementname);
+                    $submittedvalue = $form->getSubmitValue($newelementname);
+                    $exportedvalue = $customelement->exportValue($submittedvalue);
+
+                    $newduedate = $form->getSubmitValue($elementname);
+                    $prefix = $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD);
+
+                    if (empty($exportedvalue)) {
+                        $newduedate = 0;
+                    } else if ($this->is_new_date_overridden($exportedvalue, $values, $prefix)) {
+                        $newduedate = helper::calculate_new_time(
+                            $exportedvalue['time'],
+                            new time($values[$newelementhour], $values[$newelementminute])
+                        );
+                        $newduedate = is_null($newduedate) ? $exportedvalue['time'] : $newduedate;
+                    } else if (!empty($exportedvalue['time'])) {
+                        $newduedate = $exportedvalue['time'];
+                    }
+
+                    // Hack detected.
+                    // We are setting duedate  with a freshly calculated value and then resubmitting all values in the form.
+                    $values[$elementname] = $newduedate;
+                    // We need to resubmit all values as we need to set a new date.
+                    $resubmit = true;
+                }
+
+                if ($resubmit) {
+                    $form->updateSubmission($values, $form->_submitFiles);
+                }
+            }
+        }
+    }
+
+    /**
+     * POst submission actions.
+     *
+     * @param \stdClass $data Submitted data.
+     * @param \stdClass $course Course.
+     *
+     * @return \stdClass
+     */
+    public function report_editdates_form_post_actions(stdClass $data, stdClass $course): stdClass {
+        $modinfo = get_fast_modinfo($course);
+
+        foreach ($data as $elementname => $elementvalue) {
+            $cmid = $this->report_get_cmid_from_element_name($elementname);
+
+            if (empty($cmid)) {
+                continue;
+            }
+
+            $cminfo = $modinfo->get_cm($cmid);
+
+            if ($cminfo->modname != $this->get_name()) {
+                continue;
+            }
+
+            if ($this->report_get_date_field_name_from_element_name($elementname) == 'timeclose') {
+                $this->form_post_actions(
+                    $data,
+                    $cmid,
+                    $this->build_new_element_name($cmid, self::NEW_TIME_CLOSE_FIELD),
+                    $elementvalue,
+                    $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD)
+                );
+            }
+        }
+
+        return $data;
     }
 }
