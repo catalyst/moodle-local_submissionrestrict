@@ -31,20 +31,21 @@ use MoodleQuickForm;
 use stdClass;
 
 /**
- * Submission restriction for assign.
+ * Submission restriction for quiz activity.
  *
  * @package     local_submissionrestrict
- * @copyright   2021 Catalyst IT
+ * @copyright   2025 Catalyst IT
  * @author      Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class assign extends mod_base {
+class quiz extends mod_base {
     use report_editdates;
 
     /**
-     * Custom due date field name.
+     * Custom date field name.
      */
-    const NEW_DUEDATE_FORM_FIELD = 'newdate';
+    const NEW_TIME_CLOSE_FIELD = 'newtimeclose';
+
 
     /**
      * Add extra settings if required.
@@ -70,7 +71,7 @@ class assign extends mod_base {
     }
 
     /**
-     * Check if new due date is overridden. AKA Other option is selected.
+     * Check if new date is overridden. AKA Other option is selected.
      *
      * @param array $newdatevalue New date element values.
      * @param array $submittedvalues Module info data.
@@ -136,7 +137,7 @@ class assign extends mod_base {
     }
 
     /**
-     * Reset due dates.
+     * Reset dates.
      *
      * @param \grade_item $gradeitem
      */
@@ -146,16 +147,9 @@ class assign extends mod_base {
         if ($record = $DB->get_record($this->get_name(), ['id' => $gradeitem->iteminstance])) {
             $needupdate = false;
 
-            if ($record->duedate > 0) {
-                if ($newdate = helper::calculate_new_time($record->duedate, $this->get_restore_time())) {
-                    $record->duedate = $newdate;
-                    $needupdate = true;
-                }
-            }
-
-            if ($record->cutoffdate > 0) {
-                if ($newdate = helper::calculate_new_time($record->cutoffdate, $this->get_restore_time())) {
-                    $record->cutoffdate = $newdate;
+            if ($record->timeclose > 0) {
+                if ($newdate = helper::calculate_new_time($record->timeclose, $this->get_restore_time())) {
+                    $record->timeclose = $newdate;
                     $needupdate = true;
                 }
             }
@@ -184,10 +178,10 @@ class assign extends mod_base {
         $this->replace_date_field(
             $form,
             $cmid,
-            'duedate',
-            self::NEW_DUEDATE_FORM_FIELD,
+            'timeclose',
+            self::NEW_TIME_CLOSE_FIELD,
             'overridengr',
-            'cutoffdate'
+            'timelimit'
         );
     }
 
@@ -200,37 +194,32 @@ class assign extends mod_base {
     public function coursemodule_definition_after_data(moodleform_mod $modform, MoodleQuickForm $form): void {
         // Apply default global settings if creating a new activity.
         if (!$this->is_updating($modform)) {
-            $config = get_config('assign');
-            if (!empty($config->duedate_enabled)) {
-                $form->setDefault(self::NEW_DUEDATE_FORM_FIELD, time() + $config->duedate);
-            } else {
-                $form->setDefault(self::NEW_DUEDATE_FORM_FIELD, 0);
-            }
+            $form->setDefault(self::NEW_TIME_CLOSE_FIELD, 0);
         }
 
-        // This is a very hacky way of making sure that duedate field is set to a new value based on data in the different field.
-        // Replace a value of the current duedate field (field should be set hidden in coursemodule_standard_elements)
+        // This is a very hacky way of making sure that time field is set to a new value based on data in the different field.
+        // Replace a value of the current time field (field should be set hidden in coursemodule_standard_elements)
         // with a new data if actual submit button pressed (ignoring unlock completion button).
-        if ($form->isSubmitted() && !$modform->no_submit_button_pressed() && $form->elementExists(self::NEW_DUEDATE_FORM_FIELD) ) {
-            $element = $form->getElement(self::NEW_DUEDATE_FORM_FIELD);
-            $submittedvalue = $form->getSubmitValue(self::NEW_DUEDATE_FORM_FIELD);
+        if ($form->isSubmitted() && !$modform->no_submit_button_pressed() && $form->elementExists(self::NEW_TIME_CLOSE_FIELD) ) {
+            $element = $form->getElement(self::NEW_TIME_CLOSE_FIELD);
+            $submittedvalue = $form->getSubmitValue(self::NEW_TIME_CLOSE_FIELD);
             $exportedvalue = $element->exportValue($submittedvalue);
             $values = $form->getSubmitValues();
 
-            $newduedate = $form->getSubmitValue('duedate');
+            $newtime = $form->getSubmitValue('timeclose');
 
             if (empty($exportedvalue)) {
-                $newduedate = 0;
+                $newtime = 0;
             } else if ($this->is_new_date_overridden($exportedvalue, $values)) {
-                $newduedate = helper::calculate_new_time($exportedvalue['time'], new time($values['hour'], $values['minute']));
-                $newduedate = is_null($newduedate) ? $exportedvalue['time'] : $newduedate;
+                $newtime = helper::calculate_new_time($exportedvalue['time'], new time($values['hour'], $values['minute']));
+                $newtime = is_null($newtime) ? $exportedvalue['time'] : $newtime;
             } else if (!empty($exportedvalue['time'])) {
-                $newduedate = $exportedvalue['time'];
+                $newtime = $exportedvalue['time'];
             }
 
             // Hack detected.
-            // We are setting duedate  with a freshly calculated value and then resubmitting all values in the form.
-            $values['duedate'] = $newduedate;
+            // We are setting time with a freshly calculated value and then resubmitting all values in the form.
+            $values['timeclose'] = $newtime;
             $form->updateSubmission($values, $form->_submitFiles);
         }
     }
@@ -247,8 +236,8 @@ class assign extends mod_base {
         $this->form_post_actions(
             $moduleinfo,
             $moduleinfo->coursemodule,
-            self::NEW_DUEDATE_FORM_FIELD,
-            $moduleinfo->duedate
+            self::NEW_TIME_CLOSE_FIELD,
+            $moduleinfo->timeclose
         );
 
         return $moduleinfo;
@@ -265,10 +254,10 @@ class assign extends mod_base {
     public function coursemodule_validation(moodleform_mod $modform, array $data): array {
         return $this->validate_dates_fields(
             $data,
-            'duedate',
-            self::NEW_DUEDATE_FORM_FIELD,
+            'timeclose',
+            self::NEW_TIME_CLOSE_FIELD,
             'overridengr',
-            'allowsubmissionsfromdate'
+            'timeopen'
         );
     }
 
@@ -283,15 +272,16 @@ class assign extends mod_base {
     }
 
     /**
-     * Update calendar events for provided assignment.
+     * Update calendar events for provided instance.
      *
-     * @param int $assignid Assignment instance id.
+     * @param int $instanceid Instance id.
      */
-    protected function update_calendar(int $assignid): void {
-        list ($course, $cm) = get_course_and_cm_from_instance($assignid, 'assign');
-        $context = \context_module::instance($cm->id);
-        $assign = new \assign($context, $cm, $course);
-        $assign->update_calendar($cm->id);
+    protected function update_calendar(int $instanceid): void {
+        global $DB;
+
+        $quiz = $DB->get_record('quiz', ['id' => $instanceid]);
+        // Update the events relating to this quiz.
+        quiz_update_events($quiz);
     }
 
     /**
@@ -312,7 +302,7 @@ class assign extends mod_base {
 
     /**
      * Replace a  date field with a custom field.
-     * This will replace due date field in the form with custom date and time limited field.
+     * This will replace field in the form with custom date and time limited field.
      *
      * @param \MoodleQuickForm $form
      * @param string $cmid  Course module id.
@@ -332,7 +322,7 @@ class assign extends mod_base {
             'local_submissionrestrict\datetime_limited'
         );
 
-        // Make due date element hidden.
+        // Make date element hidden.
         // We need date field in the form to make sure that we save it to DB when the form is getting processed later on.
         // We will update the value of date in definition_after_data method, so we can set whatever is set in our new field.
         $form->removeElement($oldfield);
@@ -340,13 +330,12 @@ class assign extends mod_base {
         $form->setType($oldfield, PARAM_INT);
 
         // Add a custom element to actually replace old date element.
-        $newelement = $form->createElement('datetimelimited', $newfield, get_string('duedate', 'assign'), [
+        $newelement = $form->createElement('datetimelimited', $newfield, get_string('quizclose', 'quiz'), [
             'optional' => true,
             'timeslots' => $this->get_available_time_slots(),
-            'override' => $this->has_override_permissions()
+            'override' => $this->has_override_permissions(),
         ]);
         $form->insertElementBefore($newelement, $addbeforefield);
-        $form->addHelpButton($newfield, 'duedate', 'assign');
 
         $form->setDefault($newfield, $form->getElementValue($oldfield));
         // Need to unset, as we use this method in a loop, but it's passed by a reference further in the forms API.
@@ -378,7 +367,7 @@ class assign extends mod_base {
 
             unset($overridengr);
 
-            // Disable fields if a new due date is not enabled.
+            // Disable fields if a new date is not enabled.
             $fieldenabled = $newfield  . '[enabled]';
             $form->disabledIf($newelementhour, $fieldenabled);
             $form->disabledIf($newelementminute, $fieldenabled);
@@ -422,9 +411,8 @@ class assign extends mod_base {
                         . get_string('reasonforvariation', 'local_submissionrestrict') . ': '
                         . $restrictrecord->get('reason');
 
-                    $staticelement = $form->createElement('static', $newelementstatic, get_string('duedate', 'assign'),  $date);
+                    $staticelement = $form->createElement('static', $newelementstatic, get_string('quizclose', 'quiz'),  $date);
                     $form->insertElementBefore($staticelement, $addbeforefield);
-                    $form->addHelpButton($newelementstatic, 'duedate', 'assign');
                     // Need to unset, as we use this method in a loop, but it's passed by a reference further in the forms API.
                     unset($staticelement);
                 }
@@ -433,19 +421,19 @@ class assign extends mod_base {
     }
 
     /**
-     * Validate assign dates form submission.
+     * Validate dates form submission.
      *
      * @param array $data Data to validate.
      * @param string $oldfield Old field name.
      * @param string $newfield New field name.
      * @param string $overridefield Override field name.
-     * @param string $allowsubmissionsfield Field for allow submission from field. It's used in validation.
+     * @param string $timeopenfield Field for allow submission from field. It's used in validation.
      * @param string $prefix A prefix to use for custom fields.
      *
      * @return array
      */
-    private function validate_dates_fields(array $data, string $oldfield, string $newfield,
-                                           string $overridefield, string $allowsubmissionsfield, string $prefix = ''): array {
+    private function validate_dates_fields(array  $data, string $oldfield, string $newfield,
+                                           string $overridefield, string $timeopenfield, string $prefix = ''): array {
         $errors = [];
 
         $elementhour = $prefix . 'hour';
@@ -456,8 +444,8 @@ class assign extends mod_base {
             $errors[$overridefield] = get_string('error:reasonrequired', 'local_submissionrestrict');
         }
 
-        // Cover a scenario when due date is set to 0 as a new overridden due date is taking advantage.
-        if (!empty($data[$allowsubmissionsfield]) && isset($data[$newfield]['time'])) {
+        // Cover a scenario when date is set to 0 as a new overridden date is taking advantage.
+        if (!empty($data[$timeopenfield]) && isset($data[$newfield]['time'])) {
             if (!empty($data[$newfield]['overridden'])) {
                 $field = $overridefield;
                 $time = new time($data[$elementhour], $data[$elementminute]);
@@ -471,17 +459,15 @@ class assign extends mod_base {
                 $newdate = $data[$newfield]['time'];
             }
 
-            if ($newdate < $data[$allowsubmissionsfield]) {
-                $errors[$field] = get_string('duedatevalidation', 'assign');
+            if ($newdate < $data[$timeopenfield]) {
+                $errors[$field] = get_string('closebeforeopen', 'quiz');
             }
         }
 
-        // Cover a scenario when overridden due date is displayed as a text, but the actual due date is hidden,
-        // so we can't display an error against due date field.
-        if (!empty($data[$allowsubmissionsfield]) && !empty($data[$oldfield])) {
-            if ($data[$oldfield] < $data[$allowsubmissionsfield]) {
-                $errors[$allowsubmissionsfield] = get_string('duedatevalidation', 'assign');
-            }
+        // Check open and close times are consistent.
+        if ($data[$timeopenfield] != 0 && $data[$newfield] != 0 &&
+            $data[$newfield] < $data[$timeopenfield]) {
+            $errors[$newfield] = get_string('closebeforeopen', 'quiz');
         }
 
         return $errors;
@@ -518,7 +504,7 @@ class assign extends mod_base {
                 $restrictrecord->set('reason', $data->{$newelementreason});
                 $restrictrecord->save();
             } else {
-                // A new due date is set to one of the standard option.
+                // A new date is set to one of the standard option.
                 // We need to clean up and delete overridden record if exists.
                 if ($restrictrecord) {
                     $restrictrecord->delete();
@@ -551,19 +537,19 @@ class assign extends mod_base {
                 continue;
             }
 
-            if ($this->report_get_date_field_name_from_element_name($elementname) == 'duedate') {
+            if ($this->report_get_date_field_name_from_element_name($elementname) == 'timeclose') {
 
-                $overridengrelementname = 'overridengr_' . $cmid . '_' . 'assign';
-                $cutoffdateelementname = str_replace('duedate', 'cutoffdate', $elementname);
+                $overridengrelementname = 'overridengr_' . $cmid . '_' . $this->get_name();
+                $addbeforeelement = 'modrestrict' . $cmid;
 
                 $this->replace_date_field(
                     $form,
                     $cmid,
                     $elementname,
-                    $this->build_new_element_name($cmid, self::NEW_DUEDATE_FORM_FIELD),
+                    $this->build_new_element_name($cmid, self::NEW_TIME_CLOSE_FIELD),
                     $overridengrelementname,
-                    $cutoffdateelementname,
-                    $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD)
+                    $addbeforeelement,
+                    $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD)
                 );
             }
         }
@@ -592,17 +578,17 @@ class assign extends mod_base {
                 continue;
             }
 
-            if ($this->report_get_date_field_name_from_element_name($elementname) == 'duedate') {
-                $overridengrelementname = 'overridengr_' . $cmid . '_' . 'assign';
-                $allowsubmissionsfromdatefield = str_replace('duedate', 'allowsubmissionsfromdate', $elementname);
+            if ($this->report_get_date_field_name_from_element_name($elementname) == 'timeclose') {
+                $overridengrelementname = 'overridengr_' . $cmid . '_' . $this->get_name();
+                $timeopenfield = str_replace('timeclose', 'timeopen', $elementname);
 
                 $errors = array_merge($errors, $this->validate_dates_fields(
                     $data,
                     $elementname,
-                    $this->build_new_element_name($cmid, self::NEW_DUEDATE_FORM_FIELD),
+                    $this->build_new_element_name($cmid, self::NEW_TIME_CLOSE_FIELD),
                     $overridengrelementname,
-                    $allowsubmissionsfromdatefield,
-                    $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD)
+                    $timeopenfield,
+                    $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD)
                 ));
             }
         }
@@ -631,15 +617,16 @@ class assign extends mod_base {
                 }
 
                 $cminfo = $dform->get_modinfo()->get_cm($cmid);
-                if ($cminfo->modname != 'assign') {
+                if ($cminfo->modname !=
+                    $this->get_name()) {
                     continue;
                 }
 
-                if ($this->report_get_date_field_name_from_element_name($elementname) == 'duedate') {
+                if ($this->report_get_date_field_name_from_element_name($elementname) == 'timeclose') {
 
-                    $newelementname = $this->build_new_element_name($cmid, self::NEW_DUEDATE_FORM_FIELD);
-                    $newelementhour = $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD) . 'hour';
-                    $newelementminute = $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD) . 'minute';
+                    $newelementname = $this->build_new_element_name($cmid, self::NEW_TIME_CLOSE_FIELD);
+                    $newelementhour = $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD) . 'hour';
+                    $newelementminute = $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD) . 'minute';
 
                     if (!$form->elementExists($newelementname)) {
                         continue;
@@ -650,7 +637,7 @@ class assign extends mod_base {
                     $exportedvalue = $customelement->exportValue($submittedvalue);
 
                     $newduedate = $form->getSubmitValue($elementname);
-                    $prefix = $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD);
+                    $prefix = $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD);
 
                     if (empty($exportedvalue)) {
                         $newduedate = 0;
@@ -702,14 +689,13 @@ class assign extends mod_base {
                 continue;
             }
 
-            if ($this->report_get_date_field_name_from_element_name($elementname) == 'duedate') {
-
+            if ($this->report_get_date_field_name_from_element_name($elementname) == 'timeclose') {
                 $this->form_post_actions(
                     $data,
                     $cmid,
-                    $this->build_new_element_name($cmid, self::NEW_DUEDATE_FORM_FIELD),
+                    $this->build_new_element_name($cmid, self::NEW_TIME_CLOSE_FIELD),
                     $elementvalue,
-                    $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD)
+                    $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD)
                 );
             }
         }
