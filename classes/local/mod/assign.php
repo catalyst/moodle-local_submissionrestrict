@@ -67,6 +67,18 @@ class assign extends mod_base {
             get_string('settings:reasons_desc', 'local_submissionrestrict'),
             ''
         ));
+
+        $settings->add(new \admin_setting_configselect(
+            "local_submissionrestrict/{$this->build_config_name('recalculatepenalty')}",
+            get_string('settings:recalculatepenalty', 'local_submissionrestrict'),
+            get_string('settings:recalculatepenalty_desc', 'local_submissionrestrict'),
+            'yes',
+            [
+                '' => get_string('choose'),
+                'no' => get_string('no'),
+                'yes' => get_string('yes'),
+            ]
+        ));
     }
 
     /**
@@ -179,6 +191,13 @@ class assign extends mod_base {
         $cmid = 0;
         if ($cm = $modform->get_coursemodule()) {
             $cmid = $cm->id;
+        }
+
+        if ($form->elementExists('recalculatepenalty')) {
+            $form->setDefault(
+                'recalculatepenalty',
+                get_config('local_submissionrestrict', $this->build_config_name('recalculatepenalty'))
+            );
         }
 
         $this->replace_date_field(
@@ -354,6 +373,10 @@ class assign extends mod_base {
         $form->insertElementBefore($newelement, $addbeforefield);
         $form->addHelpButton($newfield, 'duedate', 'assign');
 
+        if ($form->elementExists('recalculatepenalty')) {
+            $form->disabledIf($newfield, 'recalculatepenalty', 'eq', '');
+        }
+
         $form->setDefault($newfield, $form->getElementValue($oldfield));
         // Need to unset, as we use this method in a loop, but it's passed by a reference further in the forms API.
         unset($newelement);
@@ -393,6 +416,11 @@ class assign extends mod_base {
             // Hide overridden time until Other option is selected.
             $fieldtime = $newfield  . '[time]';
             $form->hideIf($overridefield, $fieldtime, 'neq', datetime_limited::OTHER_VALUE);
+
+            if ($form->elementExists('recalculatepenalty')) {
+                $form->disabledIf($overridefield, 'recalculatepenalty', 'eq', '');
+            }
+
         }
 
         // We would like to apply default values from a new overridden date (option Other is selected)
