@@ -26,7 +26,7 @@
 use local_submissionrestrict\report_table;
 
 require_once('../../config.php');
-require_once($CFG->libdir.'/adminlib.php');
+require_once($CFG->libdir . '/adminlib.php');
 
 $pagecontextid = required_param('pagecontextid', PARAM_INT);
 $category = optional_param('category', 0, PARAM_INT);
@@ -43,7 +43,7 @@ require_login();
 require_capability('local/submissionrestrict:overridereport', $context);
 
 $baseurl = new moodle_url('/local/submissionrestrict/report.php', [
-    'pagecontextid' => $context->id
+    'pagecontextid' => $context->id,
 ]);
 
 $PAGE->set_context($context);

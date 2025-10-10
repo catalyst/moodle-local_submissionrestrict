@@ -58,15 +58,15 @@ class assign extends mod_base {
             "local_submissionrestrict/{$this->build_config_name('timeslots')}",
             get_string('settings:timeslots', 'local_submissionrestrict'),
             get_string('settings:timeslots_desc', 'local_submissionrestrict'),
-            '')
-        );
+            ''
+        ));
 
         $settings->add(new admin_setting_configtextarea(
             "local_submissionrestrict/{$this->build_config_name('reasons')}",
             get_string('settings:reasons', 'local_submissionrestrict'),
             get_string('settings:reasons_desc', 'local_submissionrestrict'),
-            '')
-        );
+            ''
+        ));
     }
 
     /**
@@ -211,7 +211,7 @@ class assign extends mod_base {
         // This is a very hacky way of making sure that duedate field is set to a new value based on data in the different field.
         // Replace a value of the current duedate field (field should be set hidden in coursemodule_standard_elements)
         // with a new data if actual submit button pressed (ignoring unlock completion button).
-        if ($form->isSubmitted() && !$modform->no_submit_button_pressed() && $form->elementExists(self::NEW_DUEDATE_FORM_FIELD) ) {
+        if ($form->isSubmitted() && !$modform->no_submit_button_pressed() && $form->elementExists(self::NEW_DUEDATE_FORM_FIELD)) {
             $element = $form->getElement(self::NEW_DUEDATE_FORM_FIELD);
             $submittedvalue = $form->getSubmitValue(self::NEW_DUEDATE_FORM_FIELD);
             $exportedvalue = $element->exportValue($submittedvalue);
@@ -288,7 +288,7 @@ class assign extends mod_base {
      * @param int $assignid Assignment instance id.
      */
     protected function update_calendar(int $assignid): void {
-        list ($course, $cm) = get_course_and_cm_from_instance($assignid, 'assign');
+         [$course, $cm] = get_course_and_cm_from_instance($assignid, 'assign');
         $context = \context_module::instance($cm->id);
         $assign = new \assign($context, $cm, $course);
         $assign->update_calendar($cm->id);
@@ -305,7 +305,6 @@ class assign extends mod_base {
 
         if (count($this->get_reason_options()) <= 1) {
             return false;
-
         }
         return true;
     }
@@ -322,8 +321,15 @@ class assign extends mod_base {
      * @param string $addbeforefield Field name to add a new field before.
      * @param string $prefix A prefix to use for custom fields.
      */
-    private function replace_date_field(MoodleQuickForm $form, string $cmid, string $oldfield, string $newfield,
-                                        string $overridefield, string $addbeforefield, string $prefix = '') {
+    private function replace_date_field(
+        MoodleQuickForm $form,
+        string $cmid,
+        string $oldfield,
+        string $newfield,
+        string $overridefield,
+        string $addbeforefield,
+        string $prefix = ''
+    ) {
         global $CFG;
 
         MoodleQuickForm::registerElementType(
@@ -343,7 +349,7 @@ class assign extends mod_base {
         $newelement = $form->createElement('datetimelimited', $newfield, get_string('duedate', 'assign'), [
             'optional' => true,
             'timeslots' => $this->get_available_time_slots(),
-            'override' => $this->has_override_permissions()
+            'override' => $this->has_override_permissions(),
         ]);
         $form->insertElementBefore($newelement, $addbeforefield);
         $form->addHelpButton($newfield, 'duedate', 'assign');
@@ -413,7 +419,6 @@ class assign extends mod_base {
                     $form->setDefault($newelementhour, $currentdate['hours']);
                     $form->setDefault($newelementminute, $currentdate['minutes']);
                     $form->setDefault($newelementreason, $restrictrecord->get('reason'));
-
                 } else {
                     // If we can't use Other option, then replace a form element with a text.
                     $form->removeElement($newfield);
@@ -422,7 +427,7 @@ class assign extends mod_base {
                         . get_string('reasonforvariation', 'local_submissionrestrict') . ': '
                         . $restrictrecord->get('reason');
 
-                    $staticelement = $form->createElement('static', $newelementstatic, get_string('duedate', 'assign'),  $date);
+                    $staticelement = $form->createElement('static', $newelementstatic, get_string('duedate', 'assign'), $date);
                     $form->insertElementBefore($staticelement, $addbeforefield);
                     $form->addHelpButton($newelementstatic, 'duedate', 'assign');
                     // Need to unset, as we use this method in a loop, but it's passed by a reference further in the forms API.
@@ -444,8 +449,14 @@ class assign extends mod_base {
      *
      * @return array
      */
-    private function validate_dates_fields(array $data, string $oldfield, string $newfield,
-                                           string $overridefield, string $allowsubmissionsfield, string $prefix = ''): array {
+    private function validate_dates_fields(
+        array $data,
+        string $oldfield,
+        string $newfield,
+        string $overridefield,
+        string $allowsubmissionsfield,
+        string $prefix = ''
+    ): array {
         $errors = [];
 
         $elementhour = $prefix . 'hour';
@@ -552,7 +563,6 @@ class assign extends mod_base {
             }
 
             if ($this->report_get_date_field_name_from_element_name($elementname) == 'duedate') {
-
                 $overridengrelementname = 'overridengr_' . $cmid . '_' . 'assign';
                 $cutoffdateelementname = str_replace('duedate', 'cutoffdate', $elementname);
 
@@ -581,7 +591,6 @@ class assign extends mod_base {
         $errors = [];
 
         foreach ($data as $elementname => $value) {
-
             $cmid = $this->report_get_cmid_from_element_name($elementname);
             if (empty($cmid)) {
                 continue;
@@ -636,7 +645,6 @@ class assign extends mod_base {
                 }
 
                 if ($this->report_get_date_field_name_from_element_name($elementname) == 'duedate') {
-
                     $newelementname = $this->build_new_element_name($cmid, self::NEW_DUEDATE_FORM_FIELD);
                     $newelementhour = $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD) . 'hour';
                     $newelementminute = $this->build_field_prefix($cmid, self::NEW_DUEDATE_FORM_FIELD) . 'minute';
@@ -703,7 +711,6 @@ class assign extends mod_base {
             }
 
             if ($this->report_get_date_field_name_from_element_name($elementname) == 'duedate') {
-
                 $this->form_post_actions(
                     $data,
                     $cmid,

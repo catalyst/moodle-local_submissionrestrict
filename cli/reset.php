@@ -23,8 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use \local_submissionrestrict\time;
-use \local_submissionrestrict\helper;
+use local_submissionrestrict\time;
+use local_submissionrestrict\helper;
 
 define('CLI_SCRIPT', true);
 
@@ -160,11 +160,11 @@ foreach ($records as $record) {
     }
 
     if ($needupdate) {
-        $updated ++;
+        $updated++;
         if ($options['run']) {
             $DB->update_record('assign', $update);
 
-            list ($course, $cm) = get_course_and_cm_from_instance($record->id, 'assign');
+             [$course, $cm] = get_course_and_cm_from_instance($record->id, 'assign');
             $context = \context_module::instance($cm->id);
             $assign = new \assign($context, $cm, $course);
             $assign->update_calendar($cm->id);

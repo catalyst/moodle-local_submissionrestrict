@@ -25,7 +25,6 @@ namespace local_submissionrestrict;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_manager {
-
     /**
      * A list of available mods.
      * @var ?mod_base[]
@@ -42,7 +41,7 @@ class mod_manager {
             return self::$mods;
         }
 
-        $dir = __DIR__.'/local/mod';
+        $dir = __DIR__ . '/local/mod';
 
         if (!is_dir($dir)) {
             return [];
@@ -85,5 +84,4 @@ class mod_manager {
 
         return $functionalmods;
     }
-
 }

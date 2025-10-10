@@ -31,7 +31,6 @@ require_once($CFG->dirroot . '/local/submissionrestrict/lib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class observer {
-
     /**
      * Handle grade item created event.
      *
@@ -71,5 +70,4 @@ class observer {
 
         return $activitytype;
     }
-
 }

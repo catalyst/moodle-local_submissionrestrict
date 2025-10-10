@@ -16,7 +16,7 @@
 
 namespace local_submissionrestrict;
 
-use \core_calendar\type_factory;
+use core_calendar\type_factory;
 
 /**
  * Helper class.
@@ -27,7 +27,6 @@ use \core_calendar\type_factory;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class helper {
-
     /**
      * Calculates a new time based on provided hour and minute.
      * It will return null if provided date doesn't need to be modified.
@@ -64,9 +63,11 @@ class helper {
                     $currentdate['mon'],
                     $currentdate['mday'],
                     $currentdate['hour'],
-                    $currentdate['minute']);
+                    $currentdate['minute']
+                );
 
-                $newdate = make_timestamp($gregoriandate['year'],
+                $newdate = make_timestamp(
+                    $gregoriandate['year'],
                     $gregoriandate['month'],
                     $gregoriandate['day'],
                     $gregoriandate['hour'],
@@ -77,5 +78,4 @@ class helper {
 
         return $newdate;
     }
-
 }

@@ -32,7 +32,6 @@ function xmldb_local_submissionrestrict_install() {
     $dbman = $DB->get_manager();
 
     if ((!defined('PHPUNIT_TEST') || !PHPUNIT_TEST)) {
-
         // Migrate all configs.
         $configs = ['assign_restore_enabled', 'assign_restore_hour', 'assign_restore_minute', 'assign_timeslots', 'assign_reasons'];
         foreach ($configs as $config) {

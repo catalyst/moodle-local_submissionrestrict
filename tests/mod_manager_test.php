@@ -24,13 +24,14 @@ use local_submissionrestrict\local\mod\assign;
  * @copyright  2022 Catalyst IT
  * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @covers \local_submissionrestrict\mod_manager
  */
-class mod_manager_test extends \advanced_testcase {
-
+final class mod_manager_test extends \advanced_testcase {
     /**
      * Test get list of all supported mods.
      */
-    public function test_get_mods() {
+    public function test_get_mods(): void {
         $mods = mod_manager::get_mods();
 
         $this->assertArrayHasKey('assign', $mods);
@@ -40,7 +41,7 @@ class mod_manager_test extends \advanced_testcase {
     /**
      * Test get list of functional mods.
      */
-    public function test_get_functional_mods() {
+    public function test_get_functional_mods(): void {
         $this->resetAfterTest(true);
 
         $mods = mod_manager::get_functional_mods();
@@ -54,5 +55,4 @@ class mod_manager_test extends \advanced_testcase {
         $this->assertArrayHasKey('assign', $mods);
         $this->assertInstanceOf(assign::class, $mods['assign']);
     }
-
 }

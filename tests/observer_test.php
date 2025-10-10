@@ -23,13 +23,14 @@ namespace local_submissionrestrict;
  * @copyright  2022 Catalyst IT
  * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @covers \local_submissionrestrict\observer
  */
-class observer_test extends \advanced_testcase {
-
+final class observer_test extends \advanced_testcase {
     /**
      * Test handling grade_item_created event.
      */
-    public function test_handle_grade_item_created_for_assign() {
+    public function test_handle_grade_item_created_for_assign(): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -98,7 +99,7 @@ class observer_test extends \advanced_testcase {
     /**
      * Test handling grade_item_created event.
      */
-    public function test_handle_grade_item_created_for_quiz() {
+    public function test_handle_grade_item_created_for_quiz(): void {
         global $DB;
 
         $this->resetAfterTest();

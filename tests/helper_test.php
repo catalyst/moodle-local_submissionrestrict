@@ -23,13 +23,14 @@ namespace local_submissionrestrict;
  * @copyright  2021 Catalyst IT
  * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @covers \local_submissionrestrict\helper
  */
-class helper_test extends \advanced_testcase {
-
+final class helper_test extends \advanced_testcase {
     /**
      * Test calculating a new time.
      */
-    public function test_local_submissionrestrict_calculate_new_time() {
+    public function test_local_submissionrestrict_calculate_new_time(): void {
         $now = '12.11.2021 13:00';
 
         // Generate expected timestamp for the time we are going to calculate for.
@@ -55,5 +56,4 @@ class helper_test extends \advanced_testcase {
         $date = $time->getTimestamp();
         $this->assertNull(helper::calculate_new_time($date, new time(23, 55), [new time(18, 30)]));
     }
-
 }

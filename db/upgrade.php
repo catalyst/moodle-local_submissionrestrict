@@ -35,7 +35,6 @@ function xmldb_local_submissionrestrict_upgrade($oldversion): bool {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 202111003) {
-
         $table = new xmldb_table('local_submissionrestrict');
 
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);

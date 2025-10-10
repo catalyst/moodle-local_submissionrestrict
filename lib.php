@@ -167,7 +167,8 @@ function local_submissionrestrict_extend_navigation_category_settings(navigation
     // Report link.
     if (has_capability('local/submissionrestrict:overridereport', $context)) {
         $title = get_string('report:title', 'local_submissionrestrict');
-        $url = new moodle_url("/local/submissionrestrict/report.php",
+        $url = new moodle_url(
+            "/local/submissionrestrict/report.php",
             ['category' => $context->instanceid, 'pagecontextid' => $context->id]
         );
 
