@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * Registered observers.
  *
@@ -29,6 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 $observers = [
     [
         'eventname' => '\core\event\grade_item_created',
-        'callback'  => '\local_submissionrestrict\observer::handle_grade_item_created'
-    ]
+        'callback'  => '\local_submissionrestrict\observer::handle_grade_item_created',
+    ],
 ];

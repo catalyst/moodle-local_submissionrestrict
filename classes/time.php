@@ -25,7 +25,6 @@ namespace local_submissionrestrict;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class time {
-
     /**
      * Hour.
      * @var int
@@ -66,5 +65,4 @@ class time {
     public function get_minute(): int {
         return $this->minute;
     }
-
 }

@@ -59,15 +59,15 @@ class quiz extends mod_base {
             "local_submissionrestrict/{$this->build_config_name('timeslots')}",
             get_string('settings:timeslots', 'local_submissionrestrict'),
             get_string('settings:timeslots_desc', 'local_submissionrestrict'),
-            '')
-        );
+            ''
+        ));
 
         $settings->add(new admin_setting_configtextarea(
             "local_submissionrestrict/{$this->build_config_name('reasons')}",
             get_string('settings:reasons', 'local_submissionrestrict'),
             get_string('settings:reasons_desc', 'local_submissionrestrict'),
-            '')
-        );
+            ''
+        ));
     }
 
     /**
@@ -200,7 +200,7 @@ class quiz extends mod_base {
         // This is a very hacky way of making sure that time field is set to a new value based on data in the different field.
         // Replace a value of the current time field (field should be set hidden in coursemodule_standard_elements)
         // with a new data if actual submit button pressed (ignoring unlock completion button).
-        if ($form->isSubmitted() && !$modform->no_submit_button_pressed() && $form->elementExists(self::NEW_TIME_CLOSE_FIELD) ) {
+        if ($form->isSubmitted() && !$modform->no_submit_button_pressed() && $form->elementExists(self::NEW_TIME_CLOSE_FIELD)) {
             $element = $form->getElement(self::NEW_TIME_CLOSE_FIELD);
             $submittedvalue = $form->getSubmitValue(self::NEW_TIME_CLOSE_FIELD);
             $exportedvalue = $element->exportValue($submittedvalue);
@@ -295,7 +295,6 @@ class quiz extends mod_base {
 
         if (count($this->get_reason_options()) <= 1) {
             return false;
-
         }
         return true;
     }
@@ -312,8 +311,15 @@ class quiz extends mod_base {
      * @param string $addbeforefield Field name to add a new field before.
      * @param string $prefix A prefix to use for custom fields.
      */
-    private function replace_date_field(MoodleQuickForm $form, string $cmid, string $oldfield, string $newfield,
-                                        string $overridefield, string $addbeforefield, string $prefix = '') {
+    private function replace_date_field(
+        MoodleQuickForm $form,
+        string $cmid,
+        string $oldfield,
+        string $newfield,
+        string $overridefield,
+        string $addbeforefield,
+        string $prefix = ''
+    ) {
         global $CFG;
 
         MoodleQuickForm::registerElementType(
@@ -402,7 +408,6 @@ class quiz extends mod_base {
                     $form->setDefault($newelementhour, $currentdate['hours']);
                     $form->setDefault($newelementminute, $currentdate['minutes']);
                     $form->setDefault($newelementreason, $restrictrecord->get('reason'));
-
                 } else {
                     // If we can't use Other option, then replace a form element with a text.
                     $form->removeElement($newfield);
@@ -411,7 +416,7 @@ class quiz extends mod_base {
                         . get_string('reasonforvariation', 'local_submissionrestrict') . ': '
                         . $restrictrecord->get('reason');
 
-                    $staticelement = $form->createElement('static', $newelementstatic, get_string('quizclose', 'quiz'),  $date);
+                    $staticelement = $form->createElement('static', $newelementstatic, get_string('quizclose', 'quiz'), $date);
                     $form->insertElementBefore($staticelement, $addbeforefield);
                     // Need to unset, as we use this method in a loop, but it's passed by a reference further in the forms API.
                     unset($staticelement);
@@ -432,8 +437,14 @@ class quiz extends mod_base {
      *
      * @return array
      */
-    private function validate_dates_fields(array  $data, string $oldfield, string $newfield,
-                                           string $overridefield, string $timeopenfield, string $prefix = ''): array {
+    private function validate_dates_fields(
+        array $data,
+        string $oldfield,
+        string $newfield,
+        string $overridefield,
+        string $timeopenfield,
+        string $prefix = ''
+    ): array {
         $errors = [];
 
         $elementhour = $prefix . 'hour';
@@ -465,8 +476,10 @@ class quiz extends mod_base {
         }
 
         // Check open and close times are consistent.
-        if ($data[$timeopenfield] != 0 && $data[$newfield] != 0 &&
-            $data[$newfield] < $data[$timeopenfield]) {
+        if (
+            $data[$timeopenfield] != 0 && $data[$newfield] != 0 &&
+            $data[$newfield] < $data[$timeopenfield]
+        ) {
             $errors[$newfield] = get_string('closebeforeopen', 'quiz');
         }
 
@@ -538,7 +551,6 @@ class quiz extends mod_base {
             }
 
             if ($this->report_get_date_field_name_from_element_name($elementname) == 'timeclose') {
-
                 $overridengrelementname = 'overridengr_' . $cmid . '_' . $this->get_name();
                 $addbeforeelement = 'modrestrict' . $cmid;
 
@@ -567,7 +579,6 @@ class quiz extends mod_base {
         $errors = [];
 
         foreach ($data as $elementname => $value) {
-
             $cmid = $this->report_get_cmid_from_element_name($elementname);
             if (empty($cmid)) {
                 continue;
@@ -617,13 +628,14 @@ class quiz extends mod_base {
                 }
 
                 $cminfo = $dform->get_modinfo()->get_cm($cmid);
-                if ($cminfo->modname !=
-                    $this->get_name()) {
+                if (
+                    $cminfo->modname !=
+                    $this->get_name()
+                ) {
                     continue;
                 }
 
                 if ($this->report_get_date_field_name_from_element_name($elementname) == 'timeclose') {
-
                     $newelementname = $this->build_new_element_name($cmid, self::NEW_TIME_CLOSE_FIELD);
                     $newelementhour = $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD) . 'hour';
                     $newelementminute = $this->build_field_prefix($cmid, self::NEW_TIME_CLOSE_FIELD) . 'minute';

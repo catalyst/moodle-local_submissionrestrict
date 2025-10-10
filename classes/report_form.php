@@ -31,7 +31,6 @@ require_once($CFG->libdir . '/formslib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class report_form extends moodleform {
-
     /**
      * Defines forms elements.
      *
@@ -55,5 +54,4 @@ class report_form extends moodleform {
         $mform->setDefault('category', $selectedcategoryid);
         $mform->addElement('submit', 'submitbutton', get_string('search'));
     }
-
 }

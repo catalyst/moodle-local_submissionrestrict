@@ -28,7 +28,6 @@ use core\task\adhoc_task;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class update_assign_calendar extends adhoc_task {
-
     /**
      * Execute the task.
      */
@@ -39,11 +38,10 @@ class update_assign_calendar extends adhoc_task {
 
         $assignid = (int)$this->get_custom_data();
 
-        list ($course, $cm) = get_course_and_cm_from_instance($assignid, 'assign');
+         [$course, $cm] = get_course_and_cm_from_instance($assignid, 'assign');
         $context = \context_module::instance($cm->id);
         $assign = new \assign($context, $cm, $course);
         $assign->update_calendar($cm->id);
         mtrace("Successfully updated calendar events for assignment CMID {$cm->id}");
     }
-
 }

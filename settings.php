@@ -28,7 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 use local_submissionrestrict\mod_manager;
 
 if ($hassiteconfig && $ADMIN->locate('localplugins')) {
-
     $settings = new admin_settingpage(
         'local_submissionrestrict_settings',
         get_string('pluginname', 'local_submissionrestrict')
@@ -42,10 +41,13 @@ if ($hassiteconfig && $ADMIN->locate('localplugins')) {
 }
 
 if ($hassiteconfig && $ADMIN->locate('reports')) {
-    $ADMIN->add('reports',
-        new admin_externalpage('local_submissionrestrict_report',
+    $ADMIN->add(
+        'reports',
+        new admin_externalpage(
+            'local_submissionrestrict_report',
             new lang_string('report:title', 'local_submissionrestrict'),
             $CFG->wwwroot . '/local/submissionrestrict/report.php?pagecontextid= ' . context_system::instance()->id,
-            ['local/submissionrestrict:overridereport'])
+            ['local/submissionrestrict:overridereport']
+        )
     );
 }

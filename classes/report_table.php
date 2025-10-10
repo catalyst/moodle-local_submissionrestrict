@@ -30,7 +30,6 @@ require_once($CFG->libdir . '/tablelib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class report_table extends table_sql {
-
     /**
      * @var array filters to apply to report data.
      */
@@ -44,14 +43,18 @@ class report_table extends table_sql {
      * @param int $page current page.
      * @param int $perpage results per page.
      */
-    public function __construct(string $uniqueid, array $filters = [], int $page = 0,
-                                int $perpage = 30) {
+    public function __construct(
+        string $uniqueid,
+        array $filters = [],
+        int $page = 0,
+        int $perpage = 30
+    ) {
         parent::__construct($uniqueid);
 
         $this->currpage = $page;
         $this->pagesize = $perpage;
         $this->filters = $filters;
-        $this->show_download_buttons_at(array(TABLE_P_BOTTOM));
+        $this->show_download_buttons_at([TABLE_P_BOTTOM]);
         $this->define_columns($this->get_columns());
         $this->define_headers($this->get_headers());
         $this->sortable(false);
@@ -64,7 +67,7 @@ class report_table extends table_sql {
      *
      * @return string[]
      */
-    protected function get_columns() : array {
+    protected function get_columns(): array {
         return [
             'coursename',
             'modulename',
@@ -81,7 +84,7 @@ class report_table extends table_sql {
      *
      * @return string[] $headers Headers for table columns.
      */
-    protected function get_headers() : array {
+    protected function get_headers(): array {
         return [
             get_string('report:coursename', 'local_submissionrestrict'),
             get_string('report:modulename', 'local_submissionrestrict'),
@@ -100,14 +103,14 @@ class report_table extends table_sql {
      * @param int $pagesize size of page for paginated table.
      * @param bool $useinitialsbar do you want to use the initials bar?
      */
-    public function query_db($pagesize, $useinitialsbar = true) : void {
+    public function query_db($pagesize, $useinitialsbar = true): void {
         global $DB;
 
         $offset = $pagesize * $this->currpage;
         $limit = $pagesize;
 
-        list($countsql, $countparams) = $this->get_sql_and_params(true);
-        list($sql, $params) = $this->get_sql_and_params();
+        [$countsql, $countparams] = $this->get_sql_and_params(true);
+        [$sql, $params] = $this->get_sql_and_params();
 
         $total = $DB->count_records_sql($countsql, $countparams);
 
@@ -138,7 +141,7 @@ class report_table extends table_sql {
             $select = "ls.cmid, c.id as courseid, c.fullname, ls.modname, ls.newdate, ls.reason, c.category ";
         }
 
-        list($where, $params) = $this->get_filters_sql_and_params();
+        [$where, $params] = $this->get_filters_sql_and_params();
 
         $sql = "SELECT $select
                   FROM {local_submissionrestrict} ls
@@ -171,10 +174,9 @@ class report_table extends table_sql {
                 $categories = $coursecat->get_all_children_ids();
                 $coursecat->get_nested_name();
                 $categories[] = $this->filters['category'];
-                list($insql, $plist) = $DB->get_in_or_equal($categories, SQL_PARAMS_NAMED);
+                [$insql, $plist] = $DB->get_in_or_equal($categories, SQL_PARAMS_NAMED);
                 $filter .= " AND c.category $insql";
                 $params += $plist;
-
             } else {
                 $filter .= ' AND c.category = :category';
                 $params['category'] = $this->filters['category'];
@@ -190,7 +192,7 @@ class report_table extends table_sql {
      * @param \stdClass $row the row data.
      * @return string formatted HTML to display in table.
      */
-    public function col_category(\stdClass $row) : string {
+    public function col_category(\stdClass $row): string {
         $category = \core_course_category::get($row->category);
 
         if ($this->is_downloading()) {
@@ -204,7 +206,6 @@ class report_table extends table_sql {
             }
         } else {
             $coursecategoryname = $category->get_nested_name(true);
-
         }
 
         return $coursecategoryname;
@@ -216,7 +217,7 @@ class report_table extends table_sql {
      * @param \stdClass $row the row data.
      * @return string formatted HTML to display in table.
      */
-    public function col_coursename(\stdClass $row) : string {
+    public function col_coursename(\stdClass $row): string {
         if ($this->is_downloading()) {
             $result = $this->format_text($row->fullname);
         } else {
@@ -234,7 +235,7 @@ class report_table extends table_sql {
      * @param \stdClass $row the row data.
      * @return string formatted HTML to display in table.
      */
-    public function col_modulename(\stdClass $row) : string {
+    public function col_modulename(\stdClass $row): string {
 
         [$course, $cm] = get_course_and_cm_from_cmid($row->cmid, $row->modname, $row->courseid);
 
@@ -254,7 +255,7 @@ class report_table extends table_sql {
      * @param \stdClass $row the row data.
      * @return string formatted HTML to display in table.
      */
-    public function col_date(\stdClass $row) : string {
+    public function col_date(\stdClass $row): string {
         $calendartype = \core_calendar\type_factory::get_calendar_instance();
         return $calendartype->timestamp_to_date_string($row->newdate, '%d.%m.%Y', 99, true, true);
     }
@@ -266,9 +267,8 @@ class report_table extends table_sql {
      * @param \stdClass $row the row data.
      * @return string formatted HTML to display in table.
      */
-    public function col_time(\stdClass $row) : string {
+    public function col_time(\stdClass $row): string {
         $calendartype = \core_calendar\type_factory::get_calendar_instance();
         return $calendartype->timestamp_to_date_string($row->newdate, '%H:%M', 99, true, true);
     }
-
 }

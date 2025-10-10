@@ -24,13 +24,14 @@ use local_submissionrestrict\restrict;
  * @copyright  2022 Catalyst IT
  * @author     Dmitrii Metelkin (dmitriim@catalyst-au.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @covers \local_submissionrestrict\local\mod\assign
  */
-class assign_test extends \advanced_testcase {
-
+final class assign_test extends \advanced_testcase {
     /**
      * Test calculating a new time.
      */
-    public function test_get_name() {
+    public function test_get_name(): void {
         $assign = new assign();
 
         $this->assertSame('assign', $assign->get_name());
@@ -39,7 +40,7 @@ class assign_test extends \advanced_testcase {
     /**
      * Test build config name.
      */
-    public function test_build_config_name() {
+    public function test_build_config_name(): void {
         $assign = new assign();
 
         $this->assertSame('assign_test', $assign->build_config_name('test'));
@@ -49,7 +50,7 @@ class assign_test extends \advanced_testcase {
     /**
      * Test can check is restore reset is enabled.
      */
-    public function test_is_restore_reset_enabled() {
+    public function test_is_restore_reset_enabled(): void {
         $this->resetAfterTest();
 
         $assign = new assign();
@@ -62,7 +63,7 @@ class assign_test extends \advanced_testcase {
     /**
      * Test getting restore time.
      */
-    public function test_get_restore_time() {
+    public function test_get_restore_time(): void {
         $this->resetAfterTest();
 
         $assign = new assign();
@@ -82,7 +83,7 @@ class assign_test extends \advanced_testcase {
     /**
      * Test resetting submission dates.
      */
-    public function test_reset_submission_dates_by_grade_item() {
+    public function test_reset_submission_dates_by_grade_item(): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -141,7 +142,7 @@ class assign_test extends \advanced_testcase {
     /**
      * Test getting restriction record.
      */
-    public function test_get_restriction_record() {
+    public function test_get_restriction_record(): void {
         $this->resetAfterTest();
 
         $assign = new assign();
@@ -164,7 +165,7 @@ class assign_test extends \advanced_testcase {
     /**
      * Test checking override permissions.
      */
-    public function test_has_override_permissions() {
+    public function test_has_override_permissions(): void {
         global $DB, $COURSE;
 
         $this->resetAfterTest();
@@ -197,7 +198,7 @@ class assign_test extends \advanced_testcase {
     /**
      * Test delete hook for assign.
      */
-    public function test_pre_course_module_delete() {
+    public function test_pre_course_module_delete(): void {
         $this->resetAfterTest();
 
         set_config('assign_timeslots', '9:30', 'local_submissionrestrict');
@@ -241,7 +242,7 @@ class assign_test extends \advanced_testcase {
     /**
      * Test if assign extension is functional.
      */
-    public function test_is_functional() {
+    public function test_is_functional(): void {
         $this->resetAfterTest(true);
 
         $assign = new assign();
@@ -253,5 +254,4 @@ class assign_test extends \advanced_testcase {
 
         $this->assertTrue($assign->is_functional());
     }
-
 }

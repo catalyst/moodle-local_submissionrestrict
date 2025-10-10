@@ -33,7 +33,6 @@ use stdClass;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class mod_base {
-
     /**
      * Returns name of the activity restriction instance.
      * @return string
@@ -61,23 +60,23 @@ abstract class mod_base {
         $settings->add(new admin_setting_heading(
             "local_submissionrestrict/{$this->build_config_name('header')}",
             ucfirst($this->get_name()),
-            '')
-        );
+            ''
+        ));
 
         $settings->add(new admin_setting_configcheckbox(
             "local_submissionrestrict/{$this->build_config_name('restore_enabled')}",
             get_string('settings:restore_enabled', 'local_submissionrestrict'),
             get_string('settings:restore_enabled_desc', 'local_submissionrestrict'),
-            0)
-        );
+            0
+        ));
 
         $settings->add(new admin_setting_configtime(
             "local_submissionrestrict/{$this->build_config_name('restore_hour')}",
             "{$this->build_config_name('restore_minute')}",
             get_string('settings:restore', 'local_submissionrestrict'),
             get_string('settings:restore_desc', 'local_submissionrestrict'),
-            ['h' => 0, 'm' => 0])
-        );
+            ['h' => 0, 'm' => 0]
+        ));
 
         $this->add_extra_settings($settings);
     }
@@ -88,7 +87,6 @@ abstract class mod_base {
      * @param \admin_settingpage $settings
      */
     protected function add_extra_settings(admin_settingpage $settings): void {
-
     }
 
     /**
@@ -180,7 +178,7 @@ abstract class mod_base {
      * @param \context|null $context Context to check permissions for.
      * @return bool
      */
-    public function has_override_permissions(\context $context = null): bool {
+    public function has_override_permissions(?\context $context = null): bool {
         global $COURSE;
 
         if (is_null($context)) {
@@ -205,7 +203,6 @@ abstract class mod_base {
      * @param \MoodleQuickForm $form Actual form instance.
      */
     public function report_editdates_form_elements($dform, MoodleQuickForm $form): void {
-
     }
 
     /**
@@ -215,7 +212,6 @@ abstract class mod_base {
      * @param MoodleQuickForm $form Form instance.
      */
     public function report_editdates_form_definition_after_data($dform, MoodleQuickForm $form): void {
-
     }
 
     /**

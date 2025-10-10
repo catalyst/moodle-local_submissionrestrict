@@ -33,10 +33,9 @@ use core_privacy\local\request\writer;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
-    \core_privacy\local\metadata\provider,
     \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\metadata\provider,
     \core_privacy\local\request\plugin\provider {
-
     /**
      * Retrieve the user metadata stored by plugin.
      *
@@ -97,7 +96,7 @@ class provider implements
             return;
         }
 
-        list($insql, $params) = $DB->get_in_or_equal($contextids, SQL_PARAMS_NAMED);
+        [$insql, $params] = $DB->get_in_or_equal($contextids, SQL_PARAMS_NAMED);
         $params['usermodified'] = $contextlist->get_user()->id;
 
         $sql = "SELECT c.id, ls.usermodified, ls.timecreated, ls.timemodified
@@ -115,14 +114,14 @@ class provider implements
             $subcontext = [
                 get_string('pluginname', 'local_submissionrestrict'),
                 'local_submissionrestrict',
-                $index
+                $index,
             ];
 
             $data = (object) [
                 'contextid' => $restrict->id,
                 'usermodified' => $restrict->usermodified,
                 'timecreated' => transform::datetime($restrict->timecreated),
-                'timemodified' => transform::datetime($restrict->timemodified)
+                'timemodified' => transform::datetime($restrict->timemodified),
             ];
 
             $context = \context::instance_by_id($restrict->contextid);
@@ -171,7 +170,7 @@ class provider implements
             return;
         }
 
-        list($insql, $params) = $DB->get_in_or_equal($cmids, SQL_PARAMS_NAMED);
+        [$insql, $params] = $DB->get_in_or_equal($cmids, SQL_PARAMS_NAMED);
         $params['usermodified'] = $contextlist->get_user()->id;
 
         // We don't want to delete records. Just anonymise the users.
@@ -206,10 +205,9 @@ class provider implements
         global $DB;
 
         $userids = $userlist->get_userids();
-        list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
         // We don't want to delete records. Just anonymise the users.
         $DB->set_field_select('local_submissionrestrict', 'usermodified', 0, "usermodified {$insql}", $inparams);
     }
-
 }

@@ -25,7 +25,6 @@ namespace local_submissionrestrict;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 trait report_editdates {
-
     /**
      * Get date field name from element name.
      *

@@ -27,7 +27,6 @@ use core\persistent;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restrict extends persistent {
-
     /**
      * Table name.
      */
@@ -55,5 +54,4 @@ class restrict extends persistent {
             ],
         ];
     }
-
 }
