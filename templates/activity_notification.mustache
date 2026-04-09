@@ -1,0 +1,44 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_submissionrestrict/activity_notification
+
+    Template for rendering activity notification.
+
+    Context variables required for this template:
+      message
+
+    Example context (json):
+    {
+        "message": "message"
+    }
+}}
+<div id="local-submissionrestrict-notification-block" class="alert alert-info alert-block fade in" role="alert" data-aria-autofocus="true">
+    <div class="side-border info"></div>
+    <div class="alert-icon">
+        <i class="fas fa-circle-info"></i>
+    </div>
+    <div class="alert-content">
+        <button type="button" class="close" data-dismiss="alert">
+            <i class="icon fa fa-times fa-fw info" aria-hidden="true"></i>
+        </button>
+        <h6 class="alert-heading mb-0">{{#str}}activitynotificationtitle, local_submissionrestrict{{/str}}</h6>
+        <div>
+            {{ message }}
+        </div>
+    </div>
+</div>

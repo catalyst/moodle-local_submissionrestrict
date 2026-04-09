@@ -26,6 +26,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['activitynotificationtitle'] = 'Reason for non-standard deadline';
 $string['error:reasonrequired'] = 'You have to provide a reason for variation';
 $string['pluginname'] = 'Submission restrictions';
 $string['privacy:metadata:local_submissionrestrict'] = 'Details of Submission restriction data.';
@@ -45,7 +46,15 @@ $string['report:reason'] = 'Reason for override';
 $string['report:time'] = 'New time';
 $string['report:title'] = 'Submission overrides report';
 $string['settings:reasons'] = 'Reasons for overriding';
-$string['settings:reasons_desc'] = 'A list of reasons for overriding available timeslots. One reason per line.';
+$string['settings:reasons_desc'] = 'A list of reasons for overriding available timeslots. One reason per line.
+To display a description to students on the activity view page, append <strong>::</strong> followed by the description text. Example:<br>
+<code>Pre/in/post class activities::This assessment has a non-standard deadline because it is a scheduled class activity. You are expected to complete and submit this task before, during, or immediately after your class.</code><br>
+<code>Non-Australian campus cohorts</code><br>
+<code>Departmental exam activities::This assessment has a non-standard deadline because it is an exam or timed assessment. You must complete and submit your work within the allocated assessment time window.</code><br>
+<code>Non-assessed activities::This assessment has a non-standard deadline because it is a non-graded activity. The due time is set to support your learning and progression through the unit.</code><br>
+<code>Other</code><br>
+If no <strong>::</strong> is provided, no description is shown on the view page.';
+$string['settings:reasons_validate_error'] = 'Invalid reason format on the following lines: {$a}. Each line must be a non-empty label, optionally followed by <strong>::</strong> and a non-empty description.';
 $string['settings:recalculatepenalty'] = 'Recalculate penalty';
 $string['settings:recalculatepenalty_desc'] = 'Default value of "Recalculate penalty" field in the activity form';
 $string['settings:restore'] = 'Default time after restore';

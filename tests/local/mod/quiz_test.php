@@ -254,4 +254,88 @@ final class quiz_test extends \advanced_testcase {
 
         $this->assertTrue($quiz->is_functional());
     }
+
+    /**
+     * Test has_user_or_group_override() returns false when neither user nor group overrides exist.
+     */
+    public function test_quiz_no_override(): void {
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+        $quiz = $this->getDataGenerator()->get_plugin_generator('mod_quiz')->create_instance(['course' => $course->id]);
+        $cm = get_coursemodule_from_instance('quiz', $quiz->id);
+
+        $manager = new quiz();
+        $this->assertFalse($manager->has_user_or_group_override($cm->id, $user->id), 'Expected no override when none is set');
+    }
+
+    /**
+     * Test has_user_or_group_override() returns true when a per-user override record exists.
+     */
+    public function test_quiz_user_override(): void {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+        $quiz = $this->getDataGenerator()->get_plugin_generator('mod_quiz')->create_instance(['course' => $course->id]);
+        $cm = get_coursemodule_from_instance('quiz', $quiz->id);
+
+        $DB->insert_record('quiz_overrides', [
+            'quiz' => $quiz->id,
+            'userid' => $user->id,
+        ]);
+
+        $manager = new quiz();
+        $this->assertTrue($manager->has_user_or_group_override($cm->id, $user->id), 'Expected true when a user override record exists');
+    }
+
+    /**
+     * Test has_user_or_group_override() returns true when a group override record exists for the user.
+     */
+    public function test_quiz_group_override(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        groups_add_member($group->id, $user->id);
+
+        $quiz = $this->getDataGenerator()->get_plugin_generator('mod_quiz')->create_instance(['course' => $course->id]);
+        $cm = get_coursemodule_from_instance('quiz', $quiz->id);
+
+        $DB->insert_record('quiz_overrides', [
+            'quiz' => $quiz->id,
+            'groupid' => $group->id,
+        ]);
+
+        $manager = new quiz();
+        $this->assertTrue($manager->has_user_or_group_override($cm->id, $user->id), 'Expected true when a group override record exists');
+    }
+
+    /**
+     * Test the quiz manager parses configured lines with/without descriptions.
+     */
+    public function test_quiz_reason_description(): void {
+        $this->resetAfterTest(true);
+
+        $lines = [
+            'reason-one::First description',
+            'reason-two',
+            'reason-three::Third description',
+        ];
+        set_config('quiz_reasons', implode("\n", $lines), 'local_submissionrestrict');
+
+        $quizmanager = new quiz();
+        $this->assertSame('First description', $quizmanager->get_reason_description('reason-one'));
+        $this->assertSame('', $quizmanager->get_reason_description('reason-two'));
+        $this->assertSame('Third description', $quizmanager->get_reason_description('reason-three'));
+        $this->assertSame('', $quizmanager->get_reason_description('missing'));
+    }
 }

@@ -26,6 +26,7 @@ use grade_item;
 use local_submissionrestrict\report_editdates;
 use local_submissionrestrict\restrict;
 use local_submissionrestrict\time;
+use local_submissionrestrict\local\admin\admin_setting_configreasons;
 use moodleform_mod;
 use MoodleQuickForm;
 use stdClass;
@@ -61,7 +62,7 @@ class assign extends mod_base {
             ''
         ));
 
-        $settings->add(new admin_setting_configtextarea(
+        $settings->add(new admin_setting_configreasons(
             "local_submissionrestrict/{$this->build_config_name('reasons')}",
             get_string('settings:reasons', 'local_submissionrestrict'),
             get_string('settings:reasons_desc', 'local_submissionrestrict'),
@@ -138,13 +139,73 @@ class assign extends mod_base {
             $items = explode("\n", str_replace("\r\n", "\n", $config));
 
             foreach ($items as $item) {
-                if (!empty(trim($item))) {
-                    $reasons[trim($item)] = trim($item);
+                $item = trim($item);
+                if (empty($item)) {
+                    continue;
                 }
+                $label = trim(explode(self::REASONS_DELIMITER, $item, 2)[0]);
+                $reasons[$label] = $label;
             }
         }
 
         return $reasons;
+    }
+
+    /**
+     * Returns the description for a stored reason label, or empty string if none.
+     *
+     * @return string
+     */
+    public function get_reason_description(string $reason): string {
+        $config = get_config('local_submissionrestrict', $this->build_config_name('reasons'));
+        if (empty($config)) {
+            return '';
+        }
+
+        $items = explode("\n", str_replace("\r\n", "\n", $config));
+        foreach ($items as $item) {
+            $item = trim($item);
+            $delimiterpos = strpos($item, self::REASONS_DELIMITER);
+            if ($delimiterpos === false) {
+                continue;
+            }
+            $label = trim(substr($item, 0, $delimiterpos));
+            if ($label === $reason) {
+                return trim(substr($item, $delimiterpos + 2));
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Returns true if the given user has a user-level or group-level override for the given course module.
+     *
+     * @param int $cmid The course module ID.
+     * @param int $userid The user ID.
+     * @return bool
+     */
+    public function has_user_or_group_override(int $cmid, int $userid): bool {
+        global $DB;
+
+        $assignid = $DB->get_field('course_modules', 'instance', ['id' => $cmid], MUST_EXIST);
+
+        // Check user-level override.
+        if ($DB->record_exists('assign_overrides', ['assignid' => $assignid, 'userid' => $userid])) {
+            return true;
+        }
+
+        // Check group-level override.
+        $groups = groups_get_user_groups($DB->get_field('assign', 'course', ['id' => $assignid], MUST_EXIST), $userid);
+        if (!empty($groups[0])) {
+            [$sql, $params] = $DB->get_in_or_equal(array_values($groups[0]));
+            $params[] = $assignid;
+            if ($DB->record_exists_sql("SELECT 1 FROM {assign_overrides} WHERE groupid $sql AND assignid = ?", $params)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
