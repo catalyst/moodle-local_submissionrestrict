@@ -420,7 +420,6 @@ class assign extends mod_base {
             if ($form->elementExists('recalculatepenalty')) {
                 $form->disabledIf($overridefield, 'recalculatepenalty', 'eq', '');
             }
-
         }
 
         // We would like to apply default values from a new overridden date (option Other is selected)
