@@ -95,32 +95,16 @@ class activity_notification_helper {
             return;
         }
 
-        $html = $OUTPUT->render_from_template(
-            'local_submissionrestrict/activity_notification',
-            ['message' => format_text($description, FORMAT_PLAIN)]
+        $notification = new \core\output\notification(
+            format_text($description, FORMAT_PLAIN),
+            \core\output\notification::NOTIFY_INFO,
+            true,
+            get_string('activitynotificationtitle', 'local_submissionrestrict'),
         );
+        $html = $PAGE->get_renderer('core')->render($notification);
 
         $encoded = rawurlencode($html);
-        $PAGE->requires->js_init_call($this->build_insertion_js($encoded));
-    }
-
-    /**
-     * Build the JavaScript used to insert the notification banner.
-     *
-     * @param string $encoded Notification HTML (URL-encoded).
-     * @return string
-     */
-    protected function build_insertion_js(string $encoded): string {
-        return <<<JS
-(function() {
-    var notificationHtml = decodeURIComponent('{$encoded}');
-    var ai = document.getElementById('monash-ai-statement-block');
-    if (ai) {
-        ai.insertAdjacentHTML('afterend', notificationHtml);
-    } else {
-        document.getElementById('region-main').insertAdjacentHTML('afterbegin', notificationHtml);
-    }
-})();
-JS;
+        $js = "document.getElementById('user-notifications').insertAdjacentHTML('afterbegin', decodeURIComponent('{$encoded}'))";
+        $PAGE->requires->js_init_call($js);
     }
 }

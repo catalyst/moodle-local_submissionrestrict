@@ -25,7 +25,6 @@
 
 use local_submissionrestrict\activity_notification_helper;
 use local_submissionrestrict\mod_manager;
-use local_submissionrestrict\restrict;
 
 /**
  * Extend course module form.

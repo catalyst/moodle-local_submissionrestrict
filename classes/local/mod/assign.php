@@ -134,18 +134,10 @@ class assign extends mod_base {
         $reasons[0] = get_string('reason', 'local_submissionrestrict');
 
         $config = get_config('local_submissionrestrict', $this->build_config_name('reasons'));
+        $parsedreasons = admin_setting_configreasons::parse_reason_config($config);
 
-        if (!empty($config)) {
-            $items = explode("\n", str_replace("\r\n", "\n", $config));
-
-            foreach ($items as $item) {
-                $item = trim($item);
-                if (empty($item)) {
-                    continue;
-                }
-                $label = trim(explode(self::REASONS_DELIMITER, $item, 2)[0]);
-                $reasons[$label] = $label;
-            }
+        foreach ($parsedreasons as $label => $description) {
+            $reasons[$label] = $label;
         }
 
         return $reasons;
@@ -158,24 +150,8 @@ class assign extends mod_base {
      */
     public function get_reason_description(string $reason): string {
         $config = get_config('local_submissionrestrict', $this->build_config_name('reasons'));
-        if (empty($config)) {
-            return '';
-        }
-
-        $items = explode("\n", str_replace("\r\n", "\n", $config));
-        foreach ($items as $item) {
-            $item = trim($item);
-            $delimiterpos = strpos($item, self::REASONS_DELIMITER);
-            if ($delimiterpos === false) {
-                continue;
-            }
-            $label = trim(substr($item, 0, $delimiterpos));
-            if ($label === $reason) {
-                return trim(substr($item, $delimiterpos + 2));
-            }
-        }
-
-        return '';
+        $parsedreasons = admin_setting_configreasons::parse_reason_config($config);
+        return $parsedreasons[$reason] ?? '';
     }
 
     /**
@@ -188,24 +164,25 @@ class assign extends mod_base {
     public function has_user_or_group_override(int $cmid, int $userid): bool {
         global $DB;
 
-        $assignid = $DB->get_field('course_modules', 'instance', ['id' => $cmid], MUST_EXIST);
+        $sql = "SELECT a.id, a.course
+                  FROM {assign} a
+                  JOIN {course_modules} cm ON cm.instance = a.id
+                 WHERE cm.id = :cmid";
+        $assign = $DB->get_record_sql($sql, ['cmid' => $cmid], MUST_EXIST);
 
-        // Check user-level override.
-        if ($DB->record_exists('assign_overrides', ['assignid' => $assignid, 'userid' => $userid])) {
+        if ($DB->record_exists('assign_overrides', ['assignid' => $assign->id, 'userid' => $userid])) {
             return true;
         }
 
-        // Check group-level override.
-        $groups = groups_get_user_groups($DB->get_field('assign', 'course', ['id' => $assignid], MUST_EXIST), $userid);
-        if (!empty($groups[0])) {
-            [$sql, $params] = $DB->get_in_or_equal(array_values($groups[0]));
-            $params[] = $assignid;
-            if ($DB->record_exists_sql("SELECT 1 FROM {assign_overrides} WHERE groupid $sql AND assignid = ?", $params)) {
-                return true;
-            }
+        $groups = groups_get_user_groups($assign->course, $userid);
+        if (empty($groups[0])) {
+            return false;
         }
 
-        return false;
+        [$sql, $params] = $DB->get_in_or_equal(array_values($groups[0]));
+        $params[] = $assign->id;
+
+        return $DB->record_exists_sql("SELECT 1 FROM {assign_overrides} WHERE groupid $sql AND assignid = ?", $params);
     }
 
     /**

@@ -27,6 +27,7 @@ use local_submissionrestrict\report_editdates;
 use local_submissionrestrict\restrict;
 use local_submissionrestrict\time;
 use local_submissionrestrict\local\admin\admin_setting_configreasons;
+use mod_quiz\local\quiz_overrides_cache_manager;
 use moodleform_mod;
 use MoodleQuickForm;
 use stdClass;
@@ -123,18 +124,10 @@ class quiz extends mod_base {
         $reasons[0] = get_string('reason', 'local_submissionrestrict');
 
         $config = get_config('local_submissionrestrict', $this->build_config_name('reasons'));
+        $parsedreasons = admin_setting_configreasons::parse_reason_config($config);
 
-        if (!empty($config)) {
-            $items = explode("\n", str_replace("\r\n", "\n", $config));
-
-            foreach ($items as $item) {
-                $item = trim($item);
-                if (empty($item)) {
-                    continue;
-                }
-                $label = trim(explode(self::REASONS_DELIMITER, $item, 2)[0]);
-                $reasons[$label] = $label;
-            }
+        foreach ($parsedreasons as $label => $description) {
+            $reasons[$label] = $label;
         }
 
         return $reasons;
@@ -147,24 +140,8 @@ class quiz extends mod_base {
      */
     public function get_reason_description(string $reason): string {
         $config = get_config('local_submissionrestrict', $this->build_config_name('reasons'));
-        if (empty($config)) {
-            return '';
-        }
-
-        $items = explode("\n", str_replace("\r\n", "\n", $config));
-        foreach ($items as $item) {
-            $item = trim($item);
-            $delimiterpos = strpos($item, self::REASONS_DELIMITER);
-            if ($delimiterpos === false) {
-                continue;
-            }
-            $label = trim(substr($item, 0, $delimiterpos));
-            if ($label === $reason) {
-                return trim(substr($item, $delimiterpos + 2));
-            }
-        }
-
-        return '';
+        $parsedreasons = admin_setting_configreasons::parse_reason_config($config);
+        return $parsedreasons[$reason] ?? '';
     }
 
     /**
@@ -178,23 +155,9 @@ class quiz extends mod_base {
         global $DB;
 
         $quizid = $DB->get_field('course_modules', 'instance', ['id' => $cmid], MUST_EXIST);
+        $overrides = quiz_overrides_cache_manager::get_overrides($quizid, $userid);
 
-        // Check user-level override.
-        if ($DB->record_exists('quiz_overrides', ['quiz' => $quizid, 'userid' => $userid])) {
-            return true;
-        }
-
-        // Check group-level override.
-        $groups = groups_get_user_groups($DB->get_field('quiz', 'course', ['id' => $quizid], MUST_EXIST), $userid);
-        if (!empty($groups[0])) {
-            [$sql, $params] = $DB->get_in_or_equal(array_values($groups[0]));
-            $params[] = $quizid;
-            if ($DB->record_exists_sql("SELECT 1 FROM {quiz_overrides} WHERE groupid $sql AND quiz = ?", $params)) {
-                return true;
-            }
-        }
-
-        return false;
+        return (bool) array_filter($overrides, fn($o) => !empty($o->userid) || !empty($o->groupid));
     }
 
     /**

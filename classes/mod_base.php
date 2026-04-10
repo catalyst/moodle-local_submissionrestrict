@@ -33,9 +33,6 @@ use stdClass;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class mod_base {
-    /** Delimiter separating reason label from optional display description. */
-    public const REASONS_DELIMITER = '::';
-
     /**
      * Returns name of the activity restriction instance.
      * @return string
@@ -136,15 +133,6 @@ abstract class mod_base {
     abstract public function reset_submission_dates_by_grade_item(\grade_item $gradeitem): void;
 
     /**
-     * Returns true if the given user has a user-level or group-level override for the given course module.
-     *
-     * @param int $cmid The course module ID.
-     * @param int $userid The user ID.
-     * @return bool
-     */
-    abstract public function has_user_or_group_override(int $cmid, int $userid): bool;
-
-    /**
      * Course module delete hook.
      *
      * @param \cm_info $cm Course module.
@@ -198,6 +186,17 @@ abstract class mod_base {
         }
 
         return has_capability('local/submissionrestrict:override', $context);
+    }
+
+    /**
+     * Returns true if the given user has a user-level or group-level override for the given course module.
+     *
+     * @param int $cmid The course module ID.
+     * @param int $userid The user ID.
+     * @return bool
+     */
+    public function has_user_or_group_override(int $cmid, int $userid): bool {
+        return false;
     }
 
     /**

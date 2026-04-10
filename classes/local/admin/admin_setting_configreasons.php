@@ -17,7 +17,11 @@
 namespace local_submissionrestrict\local\admin;
 
 use admin_setting_configtextarea;
-use local_submissionrestrict\mod_base;
+
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->libdir . '/adminlib.php');
 
 /**
  * Admin setting for submission restriction reasons.
@@ -27,6 +31,9 @@ use local_submissionrestrict\mod_base;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class admin_setting_configreasons extends admin_setting_configtextarea {
+    /** Delimiter separating reason label from optional display description. */
+    public const REASONS_DELIMITER = '::';
+
     /**
      * Validate the configuration data for restriction reasons.
      *
@@ -47,9 +54,9 @@ class admin_setting_configreasons extends admin_setting_configtextarea {
             if (empty($line)) {
                 continue;
             }
-            $pos = strpos($line, mod_base::REASONS_DELIMITER);
+            $pos = strpos($line, self::REASONS_DELIMITER);
             $label = $pos !== false ? trim(substr($line, 0, $pos)) : $line;
-            $description = $pos !== false ? trim(substr($line, $pos + strlen(mod_base::REASONS_DELIMITER))) : '';
+            $description = $pos !== false ? trim(substr($line, $pos + strlen(self::REASONS_DELIMITER))) : '';
 
             if (empty($label)) {
                 $errors[] = $line;
@@ -69,5 +76,41 @@ class admin_setting_configreasons extends admin_setting_configtextarea {
             );
         }
         return true;
+    }
+
+    /**
+     * Convert stored reasons into a label => description map.
+     *
+     * @param string|null $data Raw textarea contents.
+     * @return array<string, string>
+     */
+    public static function parse_reason_config(?string $data): array {
+        $reasons = [];
+        if (empty($data)) {
+            return $reasons;
+        }
+
+        $normalized = str_replace("\r\n", "\n", (string)$data);
+        foreach (explode("\n", $normalized) as $line) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+
+            $delimiterpos = strpos($line, self::REASONS_DELIMITER);
+            $label = $delimiterpos !== false ? trim(substr($line, 0, $delimiterpos)) : $line;
+            if ($label === '') {
+                continue;
+            }
+
+            $description = '';
+            if ($delimiterpos !== false) {
+                $description = trim(substr($line, $delimiterpos + strlen(self::REASONS_DELIMITER)));
+            }
+
+            $reasons[$label] = $description;
+        }
+
+        return $reasons;
     }
 }
