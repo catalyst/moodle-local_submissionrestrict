@@ -26,6 +26,7 @@ use grade_item;
 use local_submissionrestrict\report_editdates;
 use local_submissionrestrict\restrict;
 use local_submissionrestrict\time;
+use local_submissionrestrict\local\admin\admin_setting_configreasons;
 use moodleform_mod;
 use MoodleQuickForm;
 use stdClass;
@@ -62,7 +63,7 @@ class quiz extends mod_base {
             ''
         ));
 
-        $settings->add(new admin_setting_configtextarea(
+        $settings->add(new admin_setting_configreasons(
             "local_submissionrestrict/{$this->build_config_name('reasons')}",
             get_string('settings:reasons', 'local_submissionrestrict'),
             get_string('settings:reasons_desc', 'local_submissionrestrict'),
@@ -122,18 +123,50 @@ class quiz extends mod_base {
         $reasons[0] = get_string('reason', 'local_submissionrestrict');
 
         $config = get_config('local_submissionrestrict', $this->build_config_name('reasons'));
+        $parsedreasons = admin_setting_configreasons::parse_reason_config($config);
 
-        if (!empty($config)) {
-            $items = explode("\n", str_replace("\r\n", "\n", $config));
-
-            foreach ($items as $item) {
-                if (!empty(trim($item))) {
-                    $reasons[trim($item)] = trim($item);
-                }
-            }
+        foreach ($parsedreasons as $label => $description) {
+            $reasons[$label] = $label;
         }
 
         return $reasons;
+    }
+
+    /**
+     * Returns the description for a stored reason label, or empty string if none.
+     *
+     * @return string
+     */
+    public function get_reason_description(string $reason): string {
+        $config = get_config('local_submissionrestrict', $this->build_config_name('reasons'));
+        $parsedreasons = admin_setting_configreasons::parse_reason_config($config);
+        return $parsedreasons[$reason] ?? '';
+    }
+
+    /**
+     * Returns true if the given user has a user-level or group-level override for the given course module.
+     *
+     * @param int $cmid The course module ID.
+     * @param int $userid The user ID.
+     * @return bool
+     */
+    public function has_user_or_group_override(int $cmid, int $userid): bool {
+        global $DB;
+
+        $quiz = $DB->get_record('course_modules', ['id' => $cmid], 'course, instance', MUST_EXIST);
+        if ($DB->record_exists('quiz_overrides', ['quiz' => $quiz->instance, 'userid' => $userid])) {
+            return true;
+        }
+
+        $groups = groups_get_user_groups($quiz->course, $userid);
+        if (empty($groups[0])) {
+            return false;
+        }
+
+        [$sql, $params] = $DB->get_in_or_equal(array_values($groups[0]));
+        $params[] = $quiz->instance;
+
+        return $DB->record_exists_sql("SELECT 1 FROM {quiz_overrides} WHERE groupid $sql AND quiz = ?", $params);
     }
 
     /**

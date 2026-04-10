@@ -23,6 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_submissionrestrict\activity_notification_helper;
 use local_submissionrestrict\mod_manager;
 
 /**
@@ -239,4 +240,21 @@ function local_submissionrestrict_report_editdates_form_post_actions(stdClass $d
     }
 
     return $data;
+}
+
+/**
+ * Extend the course page navigation to show a submission restriction notification.
+ *
+ * Checks if the current activity has a submission restriction reason set and, if so,
+ * injects a notification banner below the AI statement or at the top of the main region.
+ *
+ * @param navigation_node $navigation The navigation node for the current course page.
+ * @param stdClass $course The current course record.
+ * @param context $context The context for the current course page.
+ */
+function local_submissionrestrict_extend_navigation_course(navigation_node $navigation, stdClass $course, context $context): void {
+    $manager = new activity_notification_helper();
+    if ($manager->should_show_notification()) {
+        $manager->inject_notification();
+    }
 }

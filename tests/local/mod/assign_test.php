@@ -254,4 +254,95 @@ final class assign_test extends \advanced_testcase {
 
         $this->assertTrue($assign->is_functional());
     }
+
+    /**
+     * Test has_user_or_group_override() returns false when neither user nor group overrides exist.
+     */
+    public function test_assign_no_override(): void {
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+        $assign = $this->getDataGenerator()->get_plugin_generator('mod_assign')->create_instance(['course' => $course->id]);
+        $cm = get_coursemodule_from_instance('assign', $assign->id);
+
+        $manager = new assign();
+        $this->assertFalse($manager->has_user_or_group_override($cm->id, $user->id), 'Expected no override when none is set');
+    }
+
+    /**
+     * Test has_user_or_group_override() returns true when a per-user override record exists.
+     */
+    public function test_assign_user_override(): void {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+        $assign = $this->getDataGenerator()->get_plugin_generator('mod_assign')->create_instance(['course' => $course->id]);
+        $cm = get_coursemodule_from_instance('assign', $assign->id);
+
+        $DB->insert_record('assign_overrides', [
+            'assignid' => $assign->id,
+            'userid' => $user->id,
+        ]);
+
+        $manager = new assign();
+        $this->assertTrue(
+            $manager->has_user_or_group_override($cm->id, $user->id),
+            'Expected true when a user override record exists'
+        );
+    }
+
+    /**
+     * Test has_user_or_group_override() returns true when a group override record exists for the user.
+     */
+    public function test_assign_group_override(): void {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        groups_add_member($group->id, $user->id);
+
+        $assign = $this->getDataGenerator()->get_plugin_generator('mod_assign')->create_instance(['course' => $course->id]);
+        $cm = get_coursemodule_from_instance('assign', $assign->id);
+
+        $DB->insert_record('assign_overrides', [
+            'assignid' => $assign->id,
+            'groupid' => $group->id,
+        ]);
+
+        $manager = new assign();
+        $this->assertTrue(
+            $manager->has_user_or_group_override($cm->id, $user->id),
+            'Expected true when a group override record exists'
+        );
+    }
+
+    /**
+     * Test the assign manager parses configured lines with/without descriptions.
+     */
+    public function test_assign_reason_description(): void {
+        $this->resetAfterTest(true);
+
+        $lines = [
+            'reason-one::First description',
+            'reason-two',
+            'reason-three::Third description',
+        ];
+        set_config('assign_reasons', implode("\n", $lines), 'local_submissionrestrict');
+
+        $assignmanager = new assign();
+        $this->assertSame('First description', $assignmanager->get_reason_description('reason-one'));
+        $this->assertSame('', $assignmanager->get_reason_description('reason-two'));
+        $this->assertSame('Third description', $assignmanager->get_reason_description('reason-three'));
+        $this->assertSame('', $assignmanager->get_reason_description('missing'));
+    }
 }

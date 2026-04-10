@@ -189,6 +189,17 @@ abstract class mod_base {
     }
 
     /**
+     * Returns true if the given user has a user-level or group-level override for the given course module.
+     *
+     * @param int $cmid The course module ID.
+     * @param int $userid The user ID.
+     * @return bool
+     */
+    public function has_user_or_group_override(int $cmid, int $userid): bool {
+        return false;
+    }
+
+    /**
      * Check if the mod is functional.
      * @return bool
      */
