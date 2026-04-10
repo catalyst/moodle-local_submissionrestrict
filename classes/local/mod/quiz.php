@@ -27,7 +27,6 @@ use local_submissionrestrict\report_editdates;
 use local_submissionrestrict\restrict;
 use local_submissionrestrict\time;
 use local_submissionrestrict\local\admin\admin_setting_configreasons;
-use mod_quiz\local\quiz_overrides_cache_manager;
 use moodleform_mod;
 use MoodleQuickForm;
 use stdClass;
