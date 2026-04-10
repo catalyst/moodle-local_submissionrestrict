@@ -88,6 +88,18 @@ class activity_notification_helper {
         );
         $html = $PAGE->get_renderer('core')->render($notification);
 
+        // We use inline JS to insert the notification banner rather than an AMD module or
+        // AJAX/web service, for two reasons:
+        //
+        // 1. core\output\notification only honours the custom title parameter when rendered
+        // directly. It cannot be set through the standard notification APIs. Rendering to HTML
+        // ourselves is the only way to preserve it.
+        //
+        // 2. The description text can be arbitrarily long, making it unsuitable to pass as
+        // a module argument. A dedicated AMD module would also be disproportionate for a
+        // single insertAdjacentHTML call with no other dependencies.
+        //
+        // The rendered HTML is URL-encoded so it can be safely embedded as an inline string literal.
         $encoded = rawurlencode($html);
         $js = "var notifications = document.getElementById('user-notifications');" .
               "if (notifications) {" .
