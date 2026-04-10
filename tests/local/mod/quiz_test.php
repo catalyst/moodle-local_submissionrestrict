@@ -291,7 +291,10 @@ final class quiz_test extends \advanced_testcase {
         ]);
 
         $manager = new quiz();
-        $this->assertTrue($manager->has_user_or_group_override($cm->id, $user->id), 'Expected true when a user override record exists');
+        $this->assertTrue(
+            $manager->has_user_or_group_override($cm->id, $user->id),
+            'Expected true when a user override record exists'
+        );
     }
 
     /**
@@ -316,7 +319,10 @@ final class quiz_test extends \advanced_testcase {
         ]);
 
         $manager = new quiz();
-        $this->assertTrue($manager->has_user_or_group_override($cm->id, $user->id), 'Expected true when a group override record exists');
+        $this->assertTrue(
+            $manager->has_user_or_group_override($cm->id, $user->id),
+            'Expected true when a group override record exists'
+        );
     }
 
     /**
