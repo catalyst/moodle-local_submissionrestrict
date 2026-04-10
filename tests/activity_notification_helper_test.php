@@ -54,37 +54,36 @@ final class activity_notification_helper_test extends \advanced_testcase {
         $PAGE->set_pagetype('mod-assign-edit');
 
         $this->assertFalse(
-            $helper->is_mod_view_page($setup['cminfo'], 'mod-assign-edit'),
+            $helper->is_mod_view_page(),
             'Should return false for other pagetypes.'
         );
     }
 
     /**
-     * Test whether a notification show be shown to the user or not.
+     * Test whether a notification should be shown to the user or not.
      */
     public function test_should_show_notification(): void {
         global $DB, $PAGE;
 
         $this->resetAfterTest(true);
 
-        $helper = new activity_notification_helper();
         $setup = $this->create_assign_activity_with_reason('reason-one', 'Displayed reason');
         $this->setUser($setup['user']);
         $PAGE->set_cm($setup['cminfo']);
         $PAGE->set_pagetype('mod-assign-view');
 
-        $this->assertFalse($helper->should_show_notification());
+        $this->assertFalse((new activity_notification_helper())->should_show_notification());
 
         // Also set the timeslots so the assign module is treated as a functional mod.
         set_config('assign_timeslots', '9:30', 'local_submissionrestrict');
-        $this->assertTrue($helper->should_show_notification());
+        $this->assertTrue((new activity_notification_helper())->should_show_notification());
 
         // Create an assignment override for the user.
         $DB->insert_record('assign_overrides', [
             'assignid' => $setup['assign']->id,
             'userid' => $setup['user']->id,
         ]);
-        $this->assertFalse($helper->should_show_notification());
+        $this->assertFalse((new activity_notification_helper())->should_show_notification());
     }
 
     /**
