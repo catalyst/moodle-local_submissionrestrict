@@ -164,13 +164,8 @@ class assign extends mod_base {
     public function has_user_or_group_override(int $cmid, int $userid): bool {
         global $DB;
 
-        $sql = "SELECT a.id, a.course
-                  FROM {assign} a
-                  JOIN {course_modules} cm ON cm.instance = a.id
-                 WHERE cm.id = :cmid";
-        $assign = $DB->get_record_sql($sql, ['cmid' => $cmid], MUST_EXIST);
-
-        if ($DB->record_exists('assign_overrides', ['assignid' => $assign->id, 'userid' => $userid])) {
+        $assign = $DB->get_record('course_modules', ['id' => $cmid], 'course, instance', MUST_EXIST);
+        if ($DB->record_exists('assign_overrides', ['assignid' => $assign->instance, 'userid' => $userid])) {
             return true;
         }
 
@@ -180,7 +175,7 @@ class assign extends mod_base {
         }
 
         [$sql, $params] = $DB->get_in_or_equal(array_values($groups[0]));
-        $params[] = $assign->id;
+        $params[] = $assign->instance;
 
         return $DB->record_exists_sql("SELECT 1 FROM {assign_overrides} WHERE groupid $sql AND assignid = ?", $params);
     }

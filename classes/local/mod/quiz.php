@@ -153,13 +153,8 @@ class quiz extends mod_base {
     public function has_user_or_group_override(int $cmid, int $userid): bool {
         global $DB;
 
-        $sql = "SELECT q.id, q.course
-                  FROM {quiz} q
-                  JOIN {course_modules} cm ON cm.instance = q.id
-                 WHERE cm.id = :cmid";
-        $quiz = $DB->get_record_sql($sql, ['cmid' => $cmid], MUST_EXIST);
-
-        if ($DB->record_exists('quiz_overrides', ['quiz' => $quiz->id, 'userid' => $userid])) {
+        $quiz = $DB->get_record('course_modules', ['id' => $cmid], 'course, instance', MUST_EXIST);
+        if ($DB->record_exists('quiz_overrides', ['quiz' => $quiz->instance, 'userid' => $userid])) {
             return true;
         }
 
@@ -169,7 +164,7 @@ class quiz extends mod_base {
         }
 
         [$sql, $params] = $DB->get_in_or_equal(array_values($groups[0]));
-        $params[] = $quiz->id;
+        $params[] = $quiz->instance;
 
         return $DB->record_exists_sql("SELECT 1 FROM {quiz_overrides} WHERE groupid $sql AND quiz = ?", $params);
     }
