@@ -33,6 +33,14 @@ if ($hassiteconfig && $ADMIN->locate('localplugins')) {
         get_string('pluginname', 'local_submissionrestrict')
     );
 
+    $settings->add(new admin_setting_configtext(
+        'local_submissionrestrict/activitynotificationtitle',
+        get_string('settings:activitynotificationtitle', 'local_submissionrestrict'),
+        get_string('settings:activitynotificationtitle_desc', 'local_submissionrestrict'),
+        get_string('activitynotificationtitle', 'local_submissionrestrict'),
+        PARAM_TEXT
+    ));
+
     foreach (mod_manager::get_mods() as $mod) {
         $mod->add_settings($settings);
     }

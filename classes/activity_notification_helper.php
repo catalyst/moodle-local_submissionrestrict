@@ -80,11 +80,14 @@ class activity_notification_helper {
 
         [$mod, $description] = $data;
 
+        $notificationtitle = get_config('local_submissionrestrict', 'activitynotificationtitle')
+            ?: get_string('activitynotificationtitle', 'local_submissionrestrict');
+
         $notification = new \core\output\notification(
             format_text($description, FORMAT_PLAIN),
             \core\output\notification::NOTIFY_INFO,
             true,
-            get_string('activitynotificationtitle', 'local_submissionrestrict'),
+            $notificationtitle,
         );
         $html = $PAGE->get_renderer('core')->render($notification);
 
