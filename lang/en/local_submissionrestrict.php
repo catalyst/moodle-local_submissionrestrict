@@ -45,6 +45,8 @@ $string['report:modulename'] = 'Assignment name';
 $string['report:reason'] = 'Reason for override';
 $string['report:time'] = 'New time';
 $string['report:title'] = 'Submission overrides report';
+$string['settings:activitynotificationtitle'] = 'Activity notification title';
+$string['settings:activitynotificationtitle_desc'] = 'The title displayed on the notification banner shown to students on the activity view page when a non-standard deadline reason is set. If left blank, the default title will be used.';
 $string['settings:reasons'] = 'Reasons for overriding';
 $string['settings:reasons_desc'] = 'A list of reasons for overriding available timeslots. One reason per line.
 To display a description to students on the activity view page, append <strong>::</strong> followed by the description text. Example:<br>
